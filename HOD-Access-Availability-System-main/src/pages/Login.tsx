@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { Shield, GraduationCap, ArrowLeft } from "lucide-react";
+import { Shield, GraduationCap, Briefcase, ArrowLeft } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
   const { role } = useParams<{ role: string }>();
   const isHod = role === "hod";
+  const isFaculty = role === "faculty";
+  const isStudent = role === "student";
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -23,10 +25,16 @@ const Login = () => {
     }
     setErrors({});
     setLoading(true);
-    setTimeout(() => navigate(isHod ? "/dashboard" : "/request-form"), 1200);
+    setTimeout(() => {
+      if (isHod || isFaculty) {
+        navigate("/dashboard");
+      } else {
+        navigate("/request-form");
+      }
+    }, 1200);
   };
 
-  const Icon = isHod ? Shield : GraduationCap;
+  const Icon = isHod ? Shield : isFaculty ? Briefcase : GraduationCap;
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
@@ -48,11 +56,13 @@ const Login = () => {
               <Icon className="h-6 w-6 text-primary" />
             </div>
             <h1 className="text-xl font-bold text-foreground">
-              {isHod ? "HOD Login" : "Student Login"}
+              {isHod ? "HOD Login" : isFaculty ? "Faculty Login" : "Student Login"}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {isHod
                 ? "Sign in to manage your availability"
+                : isFaculty
+                ? "Sign in to manage your schedule"
                 : "Sign in to check HOD schedules"}
             </p>
           </div>
@@ -108,12 +118,12 @@ const Login = () => {
           </button>
 
           <p className="mt-4 text-center text-xs text-muted-foreground">
-            {isHod ? "Not an HOD?" : "Not a student?"}{" "}
+            {isHod ? "Not an HOD? " : isFaculty ? "Not Faculty? " : "Not a student? "}
             <Link
-              to={isHod ? "/login/student" : "/login/hod"}
+              to={isHod ? "/login/faculty" : isFaculty ? "/login/student" : "/login/hod"}
               className="font-medium text-primary hover:underline"
             >
-              {isHod ? "Student Login" : "HOD Login"}
+              {isHod ? "Faculty Login" : isFaculty ? "Student Login" : "HOD Login"}
             </Link>
           </p>
         </form>
