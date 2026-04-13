@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: "Poppins", sans-serif;
+        background: #03040b;
+        color: #ecf2ff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      *::selection {
+        background: rgba(59, 130, 246, 0.35);
+        color: #eef4ff;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: radial-gradient(circle at top left, rgba(40, 110, 255, 0.16), transparent 24%),
+          radial-gradient(circle at bottom right, rgba(6, 35, 86, 0.82), transparent 20%),
+          linear-gradient(180deg, #02030a 0%, #06112d 48%, #081021 100%);
+      }
+
+      .dashboard-card {
+        width: min(100%, 560px);
+        background: rgba(14, 19, 47, 0.82);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 32px;
+        backdrop-filter: blur(22px);
+        box-shadow: 0 30px 90px rgba(2, 8, 24, 0.45);
+        padding: 36px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .dashboard-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 40px 110px rgba(2, 8, 24, 0.55);
+      }
+
+      .header {
+        margin-bottom: 32px;
+      }
+
+      .title {
+        margin: 0;
+        font-size: clamp(2rem, 2.5vw, 2.7rem);
+        letter-spacing: -0.03em;
+        line-height: 1.05;
+        color: #f8fbff;
+      }
+
+      .subtitle {
+        margin: 12px 0 0;
+        color: #a8b7d9;
+        font-size: 1rem;
+        line-height: 1.7;
+      }
+
+      .status-grid {
+        display: grid;
+        gap: 20px;
+      }
+
+      .status-row {
+        display: grid;
+        gap: 20px;
+      }
+
+      .status-card,
+      .action-card,
+      .request-card {
+        border-radius: 26px;
+        padding: 22px;
+        background: rgba(12, 18, 43, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+      }
+
+      .item-heading {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0 0 16px;
+        font-size: 0.98rem;
+        font-weight: 600;
+        color: #cbd4f9;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.65rem 1rem;
+        border-radius: 999px;
+        font-size: 0.96rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+      }
+
+      .badge--available {
+        background: rgba(34, 197, 94, 0.14);
+        color: #8ef4aa;
+        border: 1px solid rgba(34, 197, 94, 0.22);
+      }
+
+      .badge--unavailable {
+        background: rgba(248, 113, 113, 0.14);
+        color: #fca5a5;
+        border: 1px solid rgba(248, 113, 113, 0.24);
+      }
+
+      .badge--pending {
+        background: rgba(251, 191, 36, 0.14);
+        color: #fbbf24;
+        border: 1px solid rgba(251, 191, 36, 0.22);
+      }
+
+      .badge--approved {
+        background: rgba(34, 197, 94, 0.14);
+        color: #86efac;
+        border: 1px solid rgba(34, 197, 94, 0.22);
+      }
+
+      .badge--rejected {
+        background: rgba(248, 113, 113, 0.14);
+        color: #fca5a5;
+        border: 1px solid rgba(248, 113, 113, 0.24);
+      }
+
+      .status-card p,
+      .request-card p {
+        margin: 0;
+        line-height: 1.75;
+        color: #c7d0ec;
+      }
+
+      .highlight {
+        margin-top: 12px;
+        padding: 20px;
+        border-radius: 24px;
+        background: linear-gradient(180deg, rgba(59, 130, 246, 0.14), rgba(8, 26, 68, 0.9));
+        border: 1px solid rgba(59, 130, 246, 0.18);
+        box-shadow: 0 16px 32px rgba(15, 42, 91, 0.18);
+      }
+
+      .highlight__text {
+        font-size: 1rem;
+        color: #d9e5ff;
+      }
+
+      .button-wrap {
+        display: flex;
+        justify-content: center;
+      }
+
+      .request-button {
+        width: 100%;
+        max-width: 320px;
+        border: none;
+        border-radius: 999px;
+        padding: 16px 22px;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        color: white;
+        background: linear-gradient(135deg, #2563eb 0%, #3b82f6 45%, #60a5fa 100%);
+        box-shadow: 0 18px 45px rgba(37, 99, 235, 0.24);
+        cursor: pointer;
+        transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+      }
+
+      .request-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 24px 56px rgba(37, 99, 235, 0.3);
+      }
+
+      .request-button:active {
+        transform: translateY(0);
+      }
+
+      .request-status {
+        display: grid;
+        gap: 12px;
+      }
+
+      .request-status__text {
+        font-size: 1rem;
+        color: #e5ecff;
+      }
+
+      .request-status__value {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 160px;
+      }
+
+      .pulse {
+        display: inline-flex;
+        width: 10px;
+        height: 10px;
+        margin-right: 10px;
+        border-radius: 999px;
+        background: #60a5fa;
+        animation: pulse 1.6s infinite ease-in-out;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 0.9;
+        }
+        50% {
+          transform: scale(1.4);
+          opacity: 0.35;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .dashboard-card {
+          padding: 28px 20px;
+        }
+
+        .status-grid {
+          gap: 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="dashboard-card">
+      <section class="header">
+        <h1 class="title">Student Dashboard</h1>
+        <p class="subtitle">Track HOD availability, submit a meeting request, and see current request status instantly.</p>
+      </section>
+
+      <section class="status-grid">
+        <article class="status-card">
+          <div class="item-heading">HOD Availability Status</div>
+          <div class="highlight">
+            <span id="availabilityBadge" class="badge badge--available">Available</span>
+            <p class="highlight__text">The HOD is currently accepting new student meeting requests.</p>
+          </div>
+        </article>
+
+        <article class="action-card">
+          <div class="item-heading">Request Meeting</div>
+          <div class="highlight">
+            <p class="highlight__text">Submit a request and get an automatic status update shortly after.</p>
+            <div class="button-wrap">
+              <button id="requestButton" class="request-button" type="button">Request Meeting</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="request-card">
+          <div class="item-heading">Request Status</div>
+          <div class="request-status">
+            <p class="request-status__text">Current status:</p>
+            <div class="request-status__value">
+              <span class="pulse"></span>
+              <span id="requestStatusBadge" class="badge badge--pending">Pending</span>
+            </div>
+            <p class="highlight__text" id="requestMessage">Your meeting request is pending review. Please wait a few seconds for the final result.</p>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      const requestButton = document.getElementById("requestButton");
+      const statusBadge = document.getElementById("requestStatusBadge");
+      const messageText = document.getElementById("requestMessage");
+      const availabilityBadge = document.getElementById("availabilityBadge");
+
+      const statuses = [
+        { label: "Approved", variant: "badge--approved", message: "The HOD has approved your meeting request." },
+        { label: "Rejected", variant: "badge--rejected", message: "The HOD has rejected your meeting request. Try again later." },
+      ];
+
+      function setStatus(label, variant, message) {
+        statusBadge.textContent = label;
+        statusBadge.className = `badge ${variant}`;
+        messageText.textContent = message;
+      }
+
+      requestButton.addEventListener("click", () => {
+        setStatus("Pending", "badge--pending", "Your meeting request is pending review. Please wait a few seconds for the final result.");
+        requestButton.disabled = true;
+        requestButton.textContent = "Requesting...";
+        requestButton.style.opacity = "0.9";
+
+        setTimeout(() => {
+          const randomChoice = statuses[Math.floor(Math.random() * statuses.length)];
+          setStatus(randomChoice.label, randomChoice.variant, randomChoice.message);
+          requestButton.disabled = false;
+          requestButton.textContent = "Request Meeting";
+          requestButton.style.opacity = "1";
+        }, 3000);
+      });
+
+      // Example behavior to optionally switch availability.
+      const isAvailable = true;
+      if (!isAvailable) {
+        availabilityBadge.textContent = "Not Available";
+        availabilityBadge.className = "badge badge--unavailable";
+      }
+    </script>
+  </body>
+</html>
