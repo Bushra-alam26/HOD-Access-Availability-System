@@ -23,7 +23,7 @@ const Login = () => {
     }
     setErrors({});
     setLoading(true);
-    setTimeout(() => navigate("/dashboard"), 1200);
+    setTimeout(() => navigate(`/dashboard?role=${role ?? "student"}`), 1200);
   };
 
   const Icon = isHod ? Shield : GraduationCap;
