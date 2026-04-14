@@ -1,14 +1,57 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { CheckCircle2, Send, XCircle } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { toast } from "@/components/ui/sonner";
+
+type RequestStatus = "Pending" | "Approved" | "Rejected";
+
+const requestStatusLabel: Record<RequestStatus, string> = {
+  Pending: "🟡 Pending",
+  Approved: "🟢 Approved",
+  Rejected: "🔴 Rejected",
+};
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [hodAvailable] = useState(true);
   const [topic, setTopic] = useState("");
   const [notes, setNotes] = useState("");
-  const [requestStatus, setRequestStatus] = useState<"Pending" | "Approved" | "Rejected">("Pending");
+  const [topicError, setTopicError] = useState("");
+  const [requestFeedback, setRequestFeedback] = useState("");
+  const [requestStatus, setRequestStatus] = useState<RequestStatus>("Pending");
   const [isRequesting, setIsRequesting] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const storedTheme = window.localStorage.getItem("theme");
+    const initialDarkMode = storedTheme ? storedTheme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    setDarkMode(initialDarkMode);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const root = window.document.documentElement;
+
+    if (darkMode) {
+      root.classList.add("dark");
+      window.localStorage.setItem("theme", "dark");
+    } else {
+      root.classList.remove("dark");
+      window.localStorage.setItem("theme", "light");
+    }
+  }, [darkMode]);
+
   useEffect(() => {
     if (!isRequesting) {
       return;
@@ -18,6 +61,11 @@ const Dashboard = () => {
       const nextStatus = Math.random() > 0.5 ? "Approved" : "Rejected";
       setRequestStatus(nextStatus);
       setIsRequesting(false);
+      if (nextStatus === "Approved") {
+        toast.success("Request approved by the HOD.");
+      } else {
+        toast.error("Request rejected. Try again later.");
+      }
     }, 3000);
 
     return () => window.clearTimeout(timer);
@@ -30,8 +78,35 @@ const Dashboard = () => {
       ? "Great news — your meeting request has been approved."
       : "Your meeting request was rejected. You can try again later.";
 
+  const handleTopicChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setTopic(value);
+
+    if (topicError && value.trim()) {
+      setTopicError("");
+    }
+
+    if (requestFeedback) {
+      setRequestFeedback("");
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!topic.trim()) {
+      setTopicError("Please add a meeting topic before submitting.");
+      setRequestFeedback("");
+      return;
+    }
+
+    setTopicError("");
+    setRequestFeedback("Request submitted successfully");
+    toast.success("Request submitted successfully");
+    setRequestStatus("Pending");
+    setIsRequesting(true);
+  };
+
   return (
-    <div className="relative min-h-screen overflow-hidden animated-dashboard-background px-4 py-10 text-slate-900">
+    <div className="relative min-h-screen overflow-hidden animated-dashboard-background px-4 py-10 text-slate-900 dark:text-slate-100">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white to-transparent" />
         <div className="bg-animated-glow left-8 top-24 h-44 w-44 bg-sky-300/45" />
@@ -51,10 +126,28 @@ const Dashboard = () => {
         <div className="w-full rounded-[2rem] border border-slate-200/50 bg-white/95 p-8 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl sm:p-12">
           <div className="mb-10 space-y-3">
             <p className="text-sm uppercase tracking-[0.34em] text-slate-500">Student Dashboard</p>
-            <h1 className="text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">Student Dashboard</h1>
-            <p className="max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
+            <h1 className="text-4xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-5xl">Student Dashboard</h1>
+            <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-400 sm:text-base">
               Check HOD availability, submit your meeting request, and send access details with topic and notes.
             </p>
+            <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-slate-200/70 bg-slate-50/90 p-4 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/80">
+              <div className="flex items-center gap-3">
+                <Avatar className="bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950">
+                  <AvatarFallback>ST</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Student Name</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Student • hod request portal</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <Button variant="outline" size="sm" onClick={() => navigate("/")}>Logout</Button>
+                <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-200/70 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                  <span>{darkMode ? "Dark mode" : "Light mode"}</span>
+                  <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+                </label>
+              </div>
+            </div>
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[1.2fr_0.95fr]">
@@ -86,17 +179,23 @@ const Dashboard = () => {
                     <p className="text-sm font-medium text-slate-400">Your Meeting Request</p>
                     <div className="mt-3 flex flex-wrap items-center gap-3">
                       <Badge
-                        variant={requestStatus === "Pending" ? "secondary" : requestStatus === "Approved" ? "default" : "destructive"}
+                        variant={
+                          requestStatus === "Pending"
+                            ? "pending"
+                            : requestStatus === "Approved"
+                            ? "approved"
+                            : "rejected"
+                        }
                         className="rounded-full px-4 py-2 text-sm"
                       >
-                        {requestStatus}
+                        {requestStatusLabel[requestStatus]}
                       </Badge>
                       <span className="text-sm text-slate-300">{statusMessage}</span>
                     </div>
                   </div>
                   <div className="rounded-3xl bg-slate-900/70 px-4 py-3 text-sm text-slate-400">
                     <div className="font-semibold text-white">Request flow</div>
-                    <div>Submit topic & notes</div>
+                    <div>{requestStatusLabel[requestStatus]}</div>
                   </div>
                 </div>
               </div>
@@ -119,10 +218,16 @@ const Dashboard = () => {
                     <span className="text-sm font-medium text-slate-300">Meeting Topic</span>
                     <input
                       value={topic}
-                      onChange={(event) => setTopic(event.target.value)}
+                      onChange={handleTopicChange}
                       placeholder="Enter meeting topic"
                       className="rounded-3xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none ring-1 ring-transparent transition focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20"
                     />
+                    {topicError ? (
+                      <p className="mt-2 flex items-center gap-2 text-sm text-rose-400">
+                        <XCircle className="h-4 w-4" />
+                        {topicError}
+                      </p>
+                    ) : null}
                   </label>
 
                   <label className="grid gap-2 text-slate-300">
@@ -135,18 +240,25 @@ const Dashboard = () => {
                     />
                   </label>
 
+                  {requestFeedback ? (
+                    <div className="rounded-3xl bg-emerald-100 px-4 py-3 text-sm font-medium text-emerald-900">
+                      {requestFeedback}
+                    </div>
+                  ) : null}
+
                   <Button
                     className="w-full rounded-full bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500 text-white shadow-[0_18px_30px_rgba(59,130,246,0.24)] transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_40px_rgba(37,99,235,0.28)]"
-                    onClick={() => {
-                      if (!topic.trim()) {
-                        return;
-                      }
-                      setRequestStatus("Pending");
-                      setIsRequesting(true);
-                    }}
-                    disabled={isRequesting || topic.trim().length === 0}
+                    onClick={handleSubmit}
+                    disabled={isRequesting}
                   >
-                    {isRequesting ? "Requesting..." : "Submit Request"}
+                    {isRequesting ? (
+                      <span className="inline-flex items-center gap-2">
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                        Requesting...
+                      </span>
+                    ) : (
+                      "Submit Request"
+                    )}
                   </Button>
                 </div>
               </div>
