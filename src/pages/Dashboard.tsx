@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/sonner";
+import { FormField } from "@/components/FormField";
 
 type RequestStatus = "Pending" | "Approved" | "Rejected";
 
@@ -48,6 +49,7 @@ const Dashboard = () => {
   const [topic, setTopic] = useState("");
   const [notes, setNotes] = useState("");
   const [topicError, setTopicError] = useState("");
+  const [notesError, setNotesError] = useState("");
   const [requestFeedback, setRequestFeedback] = useState("");
   const [requestStatus, setRequestStatus] = useState<RequestStatus>("Pending");
   const [isRequesting, setIsRequesting] = useState(false);
@@ -123,19 +125,51 @@ const Dashboard = () => {
     }
   };
 
-  const handleSubmit = () => {
-    if (!topic.trim()) {
-      setTopicError("Please add a meeting topic before submitting.");
+  const handleNotesChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    const value = event.target.value;
+    setNotes(value);
+
+    if (notesError && value.trim()) {
+      setNotesError("");
+    }
+
+    if (requestFeedback) {
       setRequestFeedback("");
+    }
+  };
+
+  const validateForm = () => {
+    const errors = { topic: "", notes: "" };
+    let isValid = true;
+
+    if (!topic.trim()) {
+      errors.topic = "Meeting topic is required";
+      isValid = false;
+    }
+
+    if (!notes.trim()) {
+      errors.notes = "Notes are required";
+      isValid = false;
+    }
+
+    setTopicError(errors.topic);
+    setNotesError(errors.notes);
+
+    return isValid;
+  };
+
+  const handleSubmit = () => {
+    if (!validateForm()) {
       return;
     }
 
-    setTopicError("");
     setRequestFeedback("Request submitted successfully");
     toast.success("Request submitted successfully");
     setRequestStatus("Pending");
     setIsRequesting(true);
   };
+
+  const isFormValid = topic.trim() && notes.trim();
 
   return (
     <div className="relative min-h-screen overflow-hidden animated-dashboard-background px-4 py-10 text-slate-900 dark:text-slate-100">
@@ -246,31 +280,27 @@ const Dashboard = () => {
                 </div>
 
                 <div className="grid gap-4">
-                  <label className="grid gap-2 text-slate-300">
-                    <span className="text-sm font-medium text-slate-300">Meeting Topic</span>
-                    <input
-                      value={topic}
-                      onChange={handleTopicChange}
-                      placeholder="Enter meeting topic"
-                      className="rounded-3xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none ring-1 ring-transparent transition focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20"
-                    />
-                    {topicError ? (
-                      <p className="mt-2 flex items-center gap-2 text-sm text-rose-400">
-                        <XCircle className="h-4 w-4" />
-                        {topicError}
-                      </p>
-                    ) : null}
-                  </label>
+                  <FormField
+                    label="Meeting Topic"
+                    type="text"
+                    value={topic}
+                    onChange={handleTopicChange}
+                    placeholder="Enter meeting topic"
+                    error={topicError}
+                    required
+                    darkMode
+                  />
 
-                  <label className="grid gap-2 text-slate-300">
-                    <span className="text-sm font-medium text-slate-300">Notes</span>
-                    <textarea
-                      value={notes}
-                      onChange={(event) => setNotes(event.target.value)}
-                      placeholder="Add details or questions for the HOD"
-                      className="min-h-[120px] rounded-3xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none ring-1 ring-transparent transition focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20"
-                    />
-                  </label>
+                  <FormField
+                    label="Notes"
+                    value={notes}
+                    onChange={handleNotesChange}
+                    placeholder="Add details or questions for the HOD"
+                    error={notesError}
+                    required
+                    multiline
+                    darkMode
+                  />
 
                   {requestFeedback ? (
                     <div className="rounded-3xl bg-emerald-100 px-4 py-3 text-sm font-medium text-emerald-900">
@@ -279,9 +309,9 @@ const Dashboard = () => {
                   ) : null}
 
                   <Button
-                    className="w-full rounded-full bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500 text-white shadow-[0_18px_30px_rgba(59,130,246,0.24)] transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_40px_rgba(37,99,235,0.28)]"
+                    className="w-full rounded-full bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500 text-white shadow-[0_18px_30px_rgba(59,130,246,0.24)] transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_40px_rgba(37,99,235,0.28)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-[0_18px_30px_rgba(59,130,246,0.24)]"
                     onClick={handleSubmit}
-                    disabled={isRequesting}
+                    disabled={isRequesting || !isFormValid}
                   >
                     {isRequesting ? (
                       <span className="inline-flex items-center gap-2">
