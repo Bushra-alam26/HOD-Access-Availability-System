@@ -5,8 +5,9 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Moon, Sun, Menu, X, Clock, BookOpen, CheckCircle2, Users } from "lucide-react";
+import { LogOut, Moon, Sun, Menu, X, Clock, BookOpen, CheckCircle2, Users, Check, X as XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 const FacultyDashboard = () => {
   const navigate = useNavigate();
@@ -15,6 +16,45 @@ const FacultyDashboard = () => {
 
   // HOD Status states: available, busy, in-meeting, offline
   const [hodStatus] = useState<"available" | "busy" | "in-meeting" | "offline">("available");
+
+  // Dummy student requests data
+  const studentRequests = [
+    {
+      id: 1,
+      name: "Rahul Sharma",
+      time: "10:30 AM",
+      reason: "Need HOD signature",
+      status: "Pending" as const,
+    },
+    {
+      id: 2,
+      name: "Priya Singh",
+      time: "11:15 AM",
+      reason: "Project approval",
+      status: "Approved" as const,
+    },
+    {
+      id: 3,
+      name: "Aman Verma",
+      time: "12:00 PM",
+      reason: "Leave permission",
+      status: "Rejected" as const,
+    },
+    {
+      id: 4,
+      name: "Sneha Patel",
+      time: "2:30 PM",
+      reason: "Grade review",
+      status: "Pending" as const,
+    },
+    {
+      id: 5,
+      name: "Vikram Kumar",
+      time: "3:45 PM",
+      reason: "Course registration",
+      status: "Approved" as const,
+    },
+  ];
 
   // Initialize dark mode based on localStorage or system preference
   useEffect(() => {
@@ -86,6 +126,29 @@ const FacultyDashboard = () => {
   };
 
   const statusInfo = getStatusInfo(hodStatus);
+
+  // Get status styling for student requests
+  const getRequestStatusStyle = (status: string) => {
+    const statusStyles: Record<string, { bgColor: string; textColor: string; badgeColor: string }> = {
+      Pending: {
+        bgColor: "bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-700",
+        textColor: "text-yellow-900 dark:text-yellow-200",
+        badgeColor: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+      },
+      Approved: {
+        bgColor: "bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-700",
+        textColor: "text-green-900 dark:text-green-200",
+        badgeColor: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+      },
+      Rejected: {
+        bgColor: "bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-700",
+        textColor: "text-red-900 dark:text-red-200",
+        badgeColor: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+      },
+    };
+
+    return statusStyles[status] || statusStyles["Pending"];
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
@@ -281,6 +344,92 @@ const FacultyDashboard = () => {
             <Button variant="outline" className="w-full">
               Download Report
             </Button>
+          </div>
+        </div>
+
+        {/* Student Requests Section */}
+        <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-md border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Student Requests</h3>
+            <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+              {studentRequests.length} Total
+            </Badge>
+          </div>
+
+          <div className="space-y-4">
+            {studentRequests.map((request) => {
+              const statusStyle = getRequestStatusStyle(request.status);
+
+              return (
+                <div
+                  key={request.id}
+                  className={`rounded-lg border p-4 transition-all duration-200 hover:shadow-md ${statusStyle.bgColor} ${statusStyle.textColor}`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h4 className="font-semibold text-lg">{request.name}</h4>
+                        <Badge className={`text-xs font-medium ${statusStyle.badgeColor}`}>
+                          {request.status}
+                        </Badge>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm opacity-80">
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4" />
+                          <span>{request.time}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <BookOpen className="h-4 w-4" />
+                          <span>{request.reason}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 ml-4">
+                      {request.status === "Pending" && (
+                        <>
+                          <Button
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800"
+                          >
+                            <Check className="h-4 w-4 mr-1" />
+                            Approve
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                          >
+                            <XIcon className="h-4 w-4 mr-1" />
+                            Reject
+                          </Button>
+                        </>
+                      )}
+                      {request.status === "Approved" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-green-300 text-green-700 hover:bg-green-50 dark:border-green-600 dark:text-green-300 dark:hover:bg-green-950"
+                        >
+                          <CheckCircle2 className="h-4 w-4 mr-1" />
+                          Approved
+                        </Button>
+                      )}
+                      {request.status === "Rejected" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-950"
+                        >
+                          <XIcon className="h-4 w-4 mr-1" />
+                          Rejected
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </main>
