@@ -4,3 +4,4 @@
 
 export type { StudentRequest, ReschedulePayload, RequestFilters } from "./request";
 export type { RequestStatus } from "./request";
+export type { DashboardSummary } from "./dashboard";

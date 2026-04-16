@@ -5,11 +5,12 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Moon, Sun, Menu, X } from "lucide-react";
+import { LogOut, Moon, Sun, Menu, X, Clock3, CalendarDays, CheckCircle2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RequestList } from "@/components/RequestList";
+import { SummaryCard, SummaryCardSkeleton } from "@/components/SummaryCard";
 import { useRequestsList } from "@/hooks/useRequests";
-import { useRequestStats } from "@/hooks/useRequestStats";
+import { useDashboardSummary } from "@/hooks/useDashboardSummary";
 
 const HodDashboard = () => {
   const navigate = useNavigate();
@@ -18,7 +19,12 @@ const HodDashboard = () => {
 
   // Fetch requests for statistics
   const { data: requests = [] } = useRequestsList();
-  const stats = useRequestStats(requests);
+  const {
+    data: summary,
+    isLoading: summaryLoading,
+    isError: summaryError,
+    refetch: refetchSummary,
+  } = useDashboardSummary();
 
   // Initialize dark mode based on localStorage or system preference
   useEffect(() => {
@@ -126,12 +132,68 @@ const HodDashboard = () => {
           </p>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <StatsCard icon="🟡" label="Pending" count={stats.pending} color="yellow" />
-          <StatsCard icon="🟢" label="Accepted" count={stats.accepted} color="green" />
-          <StatsCard icon="🔴" label="Rejected" count={stats.rejected} color="red" />
-          <StatsCard icon="🔵" label="Rescheduled" count={stats.rescheduled} color="blue" />
+        {/* Summary Cards */}
+        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Dashboard Summary</h2>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              Live request and meeting insights for the HOD team.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" onClick={() => refetchSummary()}>
+              Refresh data
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-4 mb-8">
+          {summaryLoading ? (
+            Array.from({ length: 4 }).map((_, index) => (
+              <SummaryCardSkeleton key={index} />
+            ))
+          ) : summaryError || !summary ? (
+            <div className="col-span-1 xl:col-span-4 rounded-3xl border border-red-200 bg-red-50 p-6 text-red-900 shadow-sm">
+              <p className="font-semibold">Unable to load summary data.</p>
+              <p className="mt-2 text-sm text-red-700">
+                Please refresh the dashboard or check your connection.
+              </p>
+              <Button className="mt-4" onClick={() => refetchSummary()}>
+                Retry
+              </Button>
+            </div>
+          ) : (
+            <>
+              <SummaryCard
+                title="Pending Requests"
+                value={summary.pendingRequests}
+                subtitle="Requests waiting for review"
+                icon={Clock3}
+                color="orange"
+              />
+              <SummaryCard
+                title="Today's Meetings"
+                value={summary.todaysMeetings}
+                subtitle="Meetings scheduled for today"
+                icon={CalendarDays}
+                color="blue"
+              />
+              <SummaryCard
+                title="Approved Today"
+                value={summary.approvedToday}
+                subtitle="Requests approved today"
+                icon={CheckCircle2}
+                color="green"
+              />
+              <SummaryCard
+                title="Total Students"
+                value={summary.totalStudents}
+                subtitle="Registered student count"
+                icon={Users}
+                color="purple"
+              />
+            </>
+          )}
         </div>
 
         {/* Request List Section */}
@@ -149,33 +211,6 @@ const HodDashboard = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
-};
-
-/**
- * Stats Card Component
- */
-interface StatsCardProps {
-  icon: string;
-  label: string;
-  count: string | number;
-  color: "yellow" | "green" | "red" | "blue";
-}
-
-const StatsCard = ({ icon, label, count, color }: StatsCardProps) => {
-  const colorClasses = {
-    yellow: "bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-200",
-    green: "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-200",
-    red: "bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-200",
-    blue: "bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-200",
-  };
-
-  return (
-    <div className={`rounded-lg p-4 ${colorClasses[color]}`}>
-      <div className="text-2xl mb-2">{icon}</div>
-      <p className="text-sm font-medium opacity-75">{label}</p>
-      <p className="text-2xl font-bold">{count}</p>
     </div>
   );
 };
