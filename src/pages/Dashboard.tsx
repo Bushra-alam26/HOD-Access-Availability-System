@@ -1,6 +1,6 @@
 import { useEffect, useState, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, Send, XCircle } from "lucide-react";
+import { CheckCircle2, Send, XCircle, Clock, Check, X, Filter } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,33 @@ const requestStatusLabel: Record<RequestStatus, string> = {
   Rejected: "🔴 Rejected",
 };
 
+interface StudentRequest {
+  id: string;
+  title: string;
+  date: string;
+  person: string;
+  status: RequestStatus;
+}
+
+const dummyRequests: StudentRequest[] = [
+  { id: "1", title: "Need HOD Signature", date: "16 Apr 2026", person: "Dr. Sharma", status: "Pending" },
+  { id: "2", title: "Project Approval", date: "15 Apr 2026", person: "Dr. Verma", status: "Approved" },
+  { id: "3", title: "Leave Permission", date: "14 Apr 2026", person: "Dr. Rao", status: "Rejected" },
+  { id: "4", title: "Research Grant Request", date: "13 Apr 2026", person: "Dr. Sharma", status: "Approved" },
+  { id: "5", title: "Exam Extension", date: "12 Apr 2026", person: "Dr. Verma", status: "Pending" },
+];
+
+const getStatusIcon = (status: RequestStatus) => {
+  switch (status) {
+    case "Pending":
+      return <Clock className="h-4 w-4" />;
+    case "Approved":
+      return <Check className="h-4 w-4" />;
+    case "Rejected":
+      return <X className="h-4 w-4" />;
+  }
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [hodAvailable] = useState(true);
@@ -25,6 +52,11 @@ const Dashboard = () => {
   const [requestStatus, setRequestStatus] = useState<RequestStatus>("Pending");
   const [isRequesting, setIsRequesting] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<RequestStatus | "All">("All");
+
+  const filteredRequests = activeFilter === "All"
+    ? dummyRequests
+    : dummyRequests.filter(request => request.status === activeFilter);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -262,6 +294,109 @@ const Dashboard = () => {
                   </Button>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* My Request Status Section */}
+          <div className="mt-12 rounded-[2rem] border border-slate-200/50 bg-white/95 p-8 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-900/95">
+            <div className="mb-8">
+              <h2 className="text-2xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-3xl">My Request Status</h2>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                Track the status of all your submitted requests and their current approval status.
+              </p>
+            </div>
+
+            {/* Filter Tabs */}
+            <div className="mb-6 flex flex-wrap gap-2">
+              <Button
+                variant={activeFilter === "All" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActiveFilter("All")}
+                className="rounded-full"
+              >
+                <Filter className="mr-2 h-4 w-4" />
+                All ({dummyRequests.length})
+              </Button>
+              <Button
+                variant={activeFilter === "Pending" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActiveFilter("Pending")}
+                className="rounded-full"
+              >
+                <Clock className="mr-2 h-4 w-4" />
+                Pending ({dummyRequests.filter(r => r.status === "Pending").length})
+              </Button>
+              <Button
+                variant={activeFilter === "Approved" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActiveFilter("Approved")}
+                className="rounded-full"
+              >
+                <Check className="mr-2 h-4 w-4" />
+                Approved ({dummyRequests.filter(r => r.status === "Approved").length})
+              </Button>
+              <Button
+                variant={activeFilter === "Rejected" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActiveFilter("Rejected")}
+                className="rounded-full"
+              >
+                <X className="mr-2 h-4 w-4" />
+                Rejected ({dummyRequests.filter(r => r.status === "Rejected").length})
+              </Button>
+            </div>
+
+            {/* Requests List */}
+            <div className="space-y-4">
+              {filteredRequests.length === 0 ? (
+                <div className="rounded-[1.5rem] border border-slate-200/50 bg-slate-50/50 p-8 text-center dark:border-slate-800/50 dark:bg-slate-900/50">
+                  <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+                    <Filter className="h-8 w-8 text-slate-400" />
+                  </div>
+                  <h3 className="mt-4 text-lg font-medium text-slate-900 dark:text-slate-100">No requests found</h3>
+                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                    No requests match the selected filter.
+                  </p>
+                </div>
+              ) : (
+                filteredRequests.map((request) => (
+                  <div
+                    key={request.id}
+                    className="rounded-[1.5rem] border border-slate-200/50 bg-white/50 p-6 shadow-sm transition-all hover:shadow-md dark:border-slate-800/50 dark:bg-slate-900/50"
+                  >
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <h3 className="font-semibold text-slate-900 dark:text-slate-100">{request.title}</h3>
+                            <p className="text-sm text-slate-600 dark:text-slate-400">
+                              Submitted to: {request.person}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {getStatusIcon(request.status)}
+                            <Badge
+                              variant={
+                                request.status === "Pending"
+                                  ? "pending"
+                                  : request.status === "Approved"
+                                  ? "approved"
+                                  : "rejected"
+                              }
+                              className="rounded-full px-3 py-1 text-xs font-medium"
+                            >
+                              {request.status}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                          <span>Submitted on: {request.date}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
