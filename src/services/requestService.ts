@@ -33,7 +33,7 @@ const mockRequests: StudentRequest[] = [
     studentId: "std-103",
     studentName: "Anjali Patel",
     studentEmail: "anjali.patel@college.edu",
-    requestedTime: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+    requestedTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
     reason: "Internship opportunity inquiry",
     status: "Pending",
     createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
@@ -47,6 +47,7 @@ const mockRequests: StudentRequest[] = [
     reason: "Course selection guidance",
     status: "Accepted",
     createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date().toISOString(),
   },
   {
     id: "req-005",
