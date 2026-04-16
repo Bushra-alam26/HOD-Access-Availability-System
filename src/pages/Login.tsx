@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { Shield, GraduationCap, Users, ArrowLeft } from "lucide-react";
+import { FormField } from "@/components/FormField";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -14,16 +15,36 @@ const Login = () => {
   const [errors, setErrors] = useState<{ username?: string; password?: string }>({});
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setUsername(value);
+
+    if (errors.username && value.trim()) {
+      setErrors(prev => ({ ...prev, username: undefined }));
+    }
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPassword(value);
+
+    if (errors.password && value.trim()) {
+      setErrors(prev => ({ ...prev, password: undefined }));
+    }
+  };
+
+  const validateForm = () => {
     const newErrors: typeof errors = {};
     if (!username.trim()) newErrors.username = "Username is required";
     if (!password.trim()) newErrors.password = "Password is required";
-    if (Object.keys(newErrors).length) {
-      setErrors(newErrors);
-      return;
-    }
-    setErrors({});
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
     setLoading(true);
 
     // Store user role in localStorage for session management
@@ -39,6 +60,8 @@ const Login = () => {
       }
     }, 1200);
   };
+
+  const isFormValid = username.trim() && password.trim();
 
   const getIcon = () => {
     if (isHod) return Shield;
@@ -94,42 +117,30 @@ const Login = () => {
             </p>
           </div>
 
-          <div className="mb-4">
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
-              Username
-            </label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
-              className="input-glow w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all duration-200 focus:border-primary"
-            />
-            {errors.username && (
-              <p className="mt-1 text-xs text-destructive">{errors.username}</p>
-            )}
-          </div>
+          <FormField
+            label="Username"
+            type="text"
+            value={username}
+            onChange={handleUsernameChange}
+            placeholder="Enter your username"
+            error={errors.username}
+            required
+          />
 
-          <div className="mb-6">
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="input-glow w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all duration-200 focus:border-primary"
-            />
-            {errors.password && (
-              <p className="mt-1 text-xs text-destructive">{errors.password}</p>
-            )}
-          </div>
+          <FormField
+            label="Password"
+            type="password"
+            value={password}
+            onChange={handlePasswordChange}
+            placeholder="••••••••"
+            error={errors.password}
+            required
+          />
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70"
+            disabled={loading || !isFormValid}
+            className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             {loading ? (
               <span className="inline-flex items-center gap-2">
