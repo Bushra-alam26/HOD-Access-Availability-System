@@ -1,87 +1,145 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Users, BookOpen, Calendar, Settings, LogOut, Moon, Sun, ArrowLeft } from "lucide-react";
+/**
+ * Faculty Dashboard Page
+ * Main dashboard for Faculty to manage meetings and view HOD availability
+ */
+
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { LogOut, Moon, Sun, Menu, X, Clock, BookOpen, CheckCircle2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
 const FacultyDashboard = () => {
+  const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle("dark");
+  // HOD Status states: available, busy, in-meeting, offline
+  const [hodStatus] = useState<"available" | "busy" | "in-meeting" | "offline">("available");
+
+  // Initialize dark mode based on localStorage or system preference
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const storedTheme = window.localStorage.getItem("theme");
+    const initialDarkMode = storedTheme
+      ? storedTheme === "dark"
+      : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    setDarkMode(initialDarkMode);
+  }, []);
+
+  // Apply theme to document
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const root = window.document.documentElement;
+
+    if (darkMode) {
+      root.classList.add("dark");
+      window.localStorage.setItem("theme", "dark");
+    } else {
+      root.classList.remove("dark");
+      window.localStorage.setItem("theme", "light");
+    }
+  }, [darkMode]);
+
+  // Handle logout
+  const handleLogout = () => {
+    window.localStorage.removeItem("userRole");
+    window.localStorage.removeItem("userName");
+    navigate("/");
   };
 
-  const facultyFeatures = [
-    {
-      title: "Student Management",
-      description: "View and manage your students, grades, and academic progress",
-      icon: Users,
-      path: "/faculty/students",
-      badge: "12 Students"
-    },
-    {
-      title: "Course Materials",
-      description: "Upload and organize course materials, assignments, and resources",
-      icon: BookOpen,
-      path: "/faculty/courses",
-      badge: "5 Courses"
-    },
-    {
-      title: "Schedule & Timetable",
-      description: "View your teaching schedule and manage office hours",
-      icon: Calendar,
-      path: "/faculty/schedule",
-      badge: "Updated"
-    },
-    {
-      title: "Profile Settings",
-      description: "Update your profile, contact information, and preferences",
-      icon: Settings,
-      path: "/faculty/profile",
-      badge: "Complete"
-    }
-  ];
+  // Get HOD status display info
+  const getStatusInfo = (status: string) => {
+    const statusMap: Record<string, { label: string; bgColor: string; textColor: string; icon: string }> = {
+      available: {
+        label: "Available",
+        bgColor: "bg-green-100 dark:bg-green-950",
+        textColor: "text-green-700 dark:text-green-200",
+        icon: "🟢",
+      },
+      busy: {
+        label: "Busy",
+        bgColor: "bg-yellow-100 dark:bg-yellow-950",
+        textColor: "text-yellow-700 dark:text-yellow-200",
+        icon: "🟡",
+      },
+      "in-meeting": {
+        label: "In Meeting",
+        bgColor: "bg-red-100 dark:bg-red-950",
+        textColor: "text-red-700 dark:text-red-200",
+        icon: "🔴",
+      },
+      offline: {
+        label: "Offline",
+        bgColor: "bg-gray-100 dark:bg-gray-950",
+        textColor: "text-gray-700 dark:text-gray-200",
+        icon: "⚫",
+      },
+    };
+
+    return statusMap[status] || statusMap["offline"];
+  };
+
+  const statusInfo = getStatusInfo(hodStatus);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
-        <div className="container mx-auto px-4 py-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+      {/* Navigation Header */}
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link
-                to="/"
-                className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            {/* Logo/Title */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="md:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
               >
-                <ArrowLeft className="h-4 w-4" />
-                Back to portal
-              </Link>
-              <div className="h-6 w-px bg-border" />
-              <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-primary" />
-                <span className="font-semibold text-foreground">Faculty Portal</span>
+                {isSidebarOpen ? (
+                  <X className="w-5 h-5" />
+                ) : (
+                  <Menu className="w-5 h-5" />
+                )}
+              </button>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  👨‍🎓 Faculty Dashboard
+                </h1>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Appointment & Meeting Management
+                </p>
               </div>
             </div>
 
+            {/* Header Actions */}
             <div className="flex items-center gap-3">
+              {/* Theme Toggle */}
               <Button
                 variant="ghost"
-                size="sm"
-                onClick={toggleDarkMode}
-                className="h-9 w-9 p-0"
+                size="icon"
+                onClick={() => setDarkMode(!darkMode)}
+                title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
               >
                 {darkMode ? (
-                  <Sun className="h-4 w-4" />
+                  <Sun className="w-5 h-5" />
                 ) : (
-                  <Moon className="h-4 w-4" />
+                  <Moon className="w-5 h-5" />
                 )}
               </Button>
 
-              <Button variant="outline" size="sm" className="gap-2">
-                <LogOut className="h-4 w-4" />
-                Logout
+              {/* Logout Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Logout</span>
               </Button>
             </div>
           </div>
@@ -89,138 +147,153 @@ const FacultyDashboard = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Welcome back, Professor Smith
-          </h1>
-          <p className="text-muted-foreground">
-            Access your faculty resources and manage your academic responsibilities
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Card */}
+        <div className="mb-8 rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-800 dark:to-purple-900 p-6 text-white shadow-lg">
+          <h2 className="text-3xl font-bold mb-2">Welcome Back, Faculty!</h2>
+          <p className="text-purple-100">
+            Check HOD availability, manage your meetings, and track appointment requests.
           </p>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Students</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">42</div>
-              <p className="text-xs text-muted-foreground">
-                +2 from last semester
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Courses Teaching</CardTitle>
-              <BookOpen className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">5</div>
-              <p className="text-xs text-muted-foreground">
-                3 undergraduate, 2 graduate
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Office Hours</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">12</div>
-              <p className="text-xs text-muted-foreground">
-                Hours this week
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Tasks</CardTitle>
-              <Settings className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">8</div>
-              <p className="text-xs text-muted-foreground">
-                Grade submissions due
-              </p>
-            </CardContent>
-          </Card>
+        {/* HOD Availability Status Card */}
+        <div className="mb-8 rounded-lg bg-white dark:bg-gray-800 p-6 shadow-md border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">HOD Availability Status</h3>
+            <div className="flex items-center gap-2">
+              <span className="text-3xl">{statusInfo.icon}</span>
+              <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${statusInfo.bgColor} ${statusInfo.textColor}`}>
+                {statusInfo.label}
+              </span>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Current Status</p>
+              <p className="text-lg font-semibold text-gray-900 dark:text-white">{statusInfo.label}</p>
+            </div>
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Last Updated</p>
+              <p className="text-lg font-semibold text-gray-900 dark:text-white">Just now</p>
+            </div>
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Next Available</p>
+              <p className="text-lg font-semibold text-gray-900 dark:text-white">2:30 PM</p>
+            </div>
+          </div>
         </div>
 
-        {/* Feature Cards */}
-        <div className="grid gap-6 md:grid-cols-2">
-          {facultyFeatures.map((feature, index) => (
-            <Card key={index} className="group cursor-pointer transition-all duration-200 hover:shadow-md">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="inline-flex rounded-lg bg-primary/10 p-2">
-                      <feature.icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg">{feature.title}</CardTitle>
-                      <Badge variant="secondary" className="mt-1">
-                        {feature.badge}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-sm mb-4">
-                  {feature.description}
-                </CardDescription>
-                <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                  Access {feature.title}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+        {/* Summary Cards Section Header */}
+        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Dashboard Summary</h2>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              Your meeting and request statistics.
+            </p>
+          </div>
         </div>
 
-        {/* Recent Activity */}
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              Your latest actions and updates
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-green-500" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Grades submitted for CS101</p>
-                  <p className="text-xs text-muted-foreground">2 hours ago</p>
-                </div>
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {/* Total Requests Card */}
+          <div className="rounded-lg bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100 dark:from-blue-950 dark:via-blue-950 dark:to-blue-900 p-5 border border-blue-200 dark:border-blue-700 shadow-md hover:-translate-y-1 transition-transform duration-300">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.24em] opacity-80 text-blue-900 dark:text-blue-200">
+                  Total Requests
+                </p>
+                <p className="mt-3 text-4xl font-semibold leading-none text-blue-900 dark:text-blue-100">
+                  28
+                </p>
+                <p className="mt-2 text-sm text-blue-700 dark:text-blue-300">All-time requests</p>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-blue-500" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Office hours updated</p>
-                  <p className="text-xs text-muted-foreground">1 day ago</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-orange-500" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">New course material uploaded</p>
-                  <p className="text-xs text-muted-foreground">3 days ago</p>
-                </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/90 dark:bg-blue-900/80 shadow-sm">
+                <Users className="h-7 w-7 text-blue-600 dark:text-blue-300" />
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          {/* Pending Requests Card */}
+          <div className="rounded-lg bg-gradient-to-br from-yellow-50 via-yellow-50 to-yellow-100 dark:from-yellow-950 dark:via-yellow-950 dark:to-yellow-900 p-5 border border-yellow-200 dark:border-yellow-700 shadow-md hover:-translate-y-1 transition-transform duration-300">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.24em] opacity-80 text-yellow-900 dark:text-yellow-200">
+                  Pending Requests
+                </p>
+                <p className="mt-3 text-4xl font-semibold leading-none text-yellow-900 dark:text-yellow-100">
+                  5
+                </p>
+                <p className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">Awaiting action</p>
+              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/90 dark:bg-yellow-900/80 shadow-sm">
+                <Clock className="h-7 w-7 text-yellow-600 dark:text-yellow-300" />
+              </div>
+            </div>
+          </div>
+
+          {/* Approved Requests Card */}
+          <div className="rounded-lg bg-gradient-to-br from-green-50 via-green-50 to-green-100 dark:from-green-950 dark:via-green-950 dark:to-green-900 p-5 border border-green-200 dark:border-green-700 shadow-md hover:-translate-y-1 transition-transform duration-300">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.24em] opacity-80 text-green-900 dark:text-green-200">
+                  Approved Meetings
+                </p>
+                <p className="mt-3 text-4xl font-semibold leading-none text-green-900 dark:text-green-100">
+                  18
+                </p>
+                <p className="mt-2 text-sm text-green-700 dark:text-green-300">Scheduled meetings</p>
+              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/90 dark:bg-green-900/80 shadow-sm">
+                <CheckCircle2 className="h-7 w-7 text-green-600 dark:text-green-300" />
+              </div>
+            </div>
+          </div>
+
+          {/* Today's Appointments Card */}
+          <div className="rounded-lg bg-gradient-to-br from-purple-50 via-purple-50 to-purple-100 dark:from-purple-950 dark:via-purple-950 dark:to-purple-900 p-5 border border-purple-200 dark:border-purple-700 shadow-md hover:-translate-y-1 transition-transform duration-300">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.24em] opacity-80 text-purple-900 dark:text-purple-200">
+                  Today's Meetings
+                </p>
+                <p className="mt-3 text-4xl font-semibold leading-none text-purple-900 dark:text-purple-100">
+                  3
+                </p>
+                <p className="mt-2 text-sm text-purple-700 dark:text-purple-300">Scheduled for today</p>
+              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/90 dark:bg-purple-900/80 shadow-sm">
+                <BookOpen className="h-7 w-7 text-purple-600 dark:text-purple-300" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-md border border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <Button className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800">
+              Schedule Meeting with HOD
+            </Button>
+            <Button variant="outline" className="w-full">
+              View My Requests
+            </Button>
+            <Button variant="outline" className="w-full">
+              Download Report
+            </Button>
+          </div>
+        </div>
       </main>
+
+      {/* Footer */}
+      <footer className="mt-12 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center text-sm text-gray-600 dark:text-gray-400">
+            <p>© 2026 College Appointment Management System</p>
+            <p className="mt-1">For Faculty - Manage meetings and appointments</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
