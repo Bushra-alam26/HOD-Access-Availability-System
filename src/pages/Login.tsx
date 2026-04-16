@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { Shield, GraduationCap, ArrowLeft } from "lucide-react";
+import { Shield, GraduationCap, Users, ArrowLeft } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
   const { role } = useParams<{ role: string }>();
   const isHod = role === "hod";
+  const isFaculty = role === "faculty";
+  const isStudent = role === "student";
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -23,10 +25,47 @@ const Login = () => {
     }
     setErrors({});
     setLoading(true);
-    setTimeout(() => navigate("/dashboard"), 1200);
+
+    // Store user role in localStorage for session management
+    localStorage.setItem("userRole", role || "student");
+
+    setTimeout(() => {
+      if (isHod) {
+        navigate("/hod-dashboard");
+      } else if (isFaculty) {
+        navigate("/faculty-dashboard");
+      } else {
+        navigate("/dashboard");
+      }
+    }, 1200);
   };
 
-  const Icon = isHod ? Shield : GraduationCap;
+  const getIcon = () => {
+    if (isHod) return Shield;
+    if (isFaculty) return Users;
+    return GraduationCap;
+  };
+
+  const getTitle = () => {
+    if (isHod) return "HOD Login";
+    if (isFaculty) return "Faculty Login";
+    return "Student Login";
+  };
+
+  const getDescription = () => {
+    if (isHod) return "Sign in to manage your availability";
+    if (isFaculty) return "Sign in to access faculty resources";
+    return "Sign in to check HOD schedules";
+  };
+
+  const getAlternativeLink = () => {
+    if (isHod) return { text: "Student Login", path: "/login/student" };
+    if (isFaculty) return { text: "Student Login", path: "/login/student" };
+    return { text: "HOD Login", path: "/login/hod" };
+  };
+
+  const Icon = getIcon();
+  const alternative = getAlternativeLink();
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
@@ -48,12 +87,10 @@ const Login = () => {
               <Icon className="h-6 w-6 text-primary" />
             </div>
             <h1 className="text-xl font-bold text-foreground">
-              {isHod ? "HOD Login" : "Student Login"}
+              {getTitle()}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              {isHod
-                ? "Sign in to manage your availability"
-                : "Sign in to check HOD schedules"}
+              {getDescription()}
             </p>
           </div>
 
@@ -108,12 +145,12 @@ const Login = () => {
           </button>
 
           <p className="mt-4 text-center text-xs text-muted-foreground">
-            {isHod ? "Not an HOD?" : "Not a student?"}{" "}
+            {isFaculty ? "Not a faculty member?" : isHod ? "Not an HOD?" : "Not a student?"}{" "}
             <Link
-              to={isHod ? "/login/student" : "/login/hod"}
+              to={alternative.path}
               className="font-medium text-primary hover:underline"
             >
-              {isHod ? "Student Login" : "HOD Login"}
+              {alternative.text}
             </Link>
           </p>
         </form>
