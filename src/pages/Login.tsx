@@ -537,11 +537,11 @@ const Login = () => {
 
   // Render login form
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <div className="w-full max-w-sm">
+    <div className="flex min-h-screen items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-md">
         <Link
           to="/"
-          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="mb-8 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to portal
@@ -551,7 +551,7 @@ const Login = () => {
           onSubmit={handleLoginSubmit}
           className="animate-fade-in rounded-xl border border-border bg-card p-8 shadow-lg"
         >
-          <div className="mb-5 flex flex-col items-center">
+          <div className="mb-10 flex flex-col items-center gap-2">
             <div className="mb-3 inline-flex rounded-lg bg-primary/10 p-3">
               <Icon className="h-6 w-6 text-primary" />
             </div>
