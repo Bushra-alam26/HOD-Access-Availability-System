@@ -184,9 +184,9 @@ const Dashboard = () => {
         <div className="bg-animated-dot tiny left-3/4 top-[35%]" />
       </div>
 
-      <div className="relative mx-auto flex min-h-[calc(100vh-80px)] max-w-6xl items-center justify-center">
-        <div className="w-full rounded-[2rem] border border-slate-200/50 bg-white/95 p-6 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl sm:p-10 lg:p-12">
-          <div className="mb-12 space-y-4">
+      <div className="relative mx-auto flex min-h-[calc(100vh-80px)] w-full max-w-6xl flex-col items-center justify-center">
+        <div className="w-full rounded-[2rem] border border-slate-200/50 bg-white/95 p-6 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl sm:p-8 lg:p-12">
+          <div className="mb-12 space-y-5 sm:space-y-6">
             <p className="text-sm uppercase tracking-[0.34em] text-slate-500">{isHod ? "HOD Dashboard" : "Student Dashboard"}</p>
             <h1 className="text-4xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-5xl">{isHod ? "HOD Request Center" : "Student Dashboard"}</h1>
             <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-400 sm:text-base">
@@ -212,7 +212,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.95fr]">
+          <div className="grid gap-10 lg:grid-cols-[1.2fr_0.95fr]">
             <div className="space-y-8">
               <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-sm">
                 <div className="flex items-center justify-between gap-4">
@@ -296,14 +296,14 @@ const Dashboard = () => {
                   </div>
 
                   <div className="overflow-hidden rounded-3xl border border-slate-200/70 bg-slate-950/95 text-slate-200 shadow-inner shadow-slate-950/40">
-                    <div className="grid grid-cols-[1.4fr_1fr_1fr_1.1fr] gap-4 border-b border-slate-800 bg-slate-900/95 px-4 py-4 text-xs uppercase tracking-[0.18em] text-slate-500">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1.4fr_1fr_1fr_1.1fr] border-b border-slate-800 bg-slate-900/95 px-4 py-4 text-xs uppercase tracking-[0.18em] text-slate-500">
                       <span>Student</span>
                       <span>Requested</span>
                       <span>Status</span>
                       <span className="text-right">Action</span>
                     </div>
                     {requests.map((request) => (
-                      <div key={request.id} className="grid grid-cols-[1.4fr_1fr_1fr_1.1fr] gap-4 border-t border-slate-900 px-4 py-4 text-sm">
+                      <div key={request.id} className="grid grid-cols-1 gap-4 sm:grid-cols-[1.4fr_1fr_1fr_1.1fr] border-t border-slate-900 px-4 py-4 text-sm">
                         <div>
                           <p className="font-medium text-white">{request.student}</p>
                           <p className="mt-1 text-xs text-slate-400">{request.topic}</p>
@@ -312,7 +312,7 @@ const Dashboard = () => {
                         <Badge variant={request.status.toLowerCase() as "pending" | "approved" | "rejected"} className="rounded-full px-3 py-1 text-xs">
                           {requestStatusLabel[request.status]}
                         </Badge>
-                        <div className="flex justify-end gap-2">
+                        <div className="flex flex-wrap justify-start gap-2 sm:justify-end">
                           <Button size="sm" variant="secondary" disabled={request.status === "Approved"} onClick={() => approveRequest(request.id)}>
                             Approve
                           </Button>

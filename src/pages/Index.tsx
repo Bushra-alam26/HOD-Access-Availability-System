@@ -31,7 +31,7 @@ const Index = () => {
             onClick={() => navigate("/login/hod")}
             onMouseEnter={() => setHoveredRole("hod")}
             onMouseLeave={() => setHoveredRole(null)}
-            className="group animate-fade-in rounded-xl border border-border bg-card p-8 text-left shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md"
+            className="group animate-fade-in rounded-xl border border-border bg-card p-6 text-left shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md sm:p-8"
             style={{ animationDelay: "0.2s", animationFillMode: "both" }}
           >
             <div className="mb-4 inline-flex rounded-lg bg-primary/10 p-3 transition-colors duration-300 group-hover:bg-primary/20">
@@ -50,7 +50,7 @@ const Index = () => {
             onClick={() => navigate("/login/student")}
             onMouseEnter={() => setHoveredRole("student")}
             onMouseLeave={() => setHoveredRole(null)}
-            className="group animate-fade-in rounded-xl border border-border bg-card p-8 text-left shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md"
+            className="group animate-fade-in rounded-xl border border-border bg-card p-6 text-left shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md sm:p-8"
             style={{ animationDelay: "0.35s", animationFillMode: "both" }}
           >
             <div className="mb-4 inline-flex rounded-lg bg-primary/10 p-3 transition-colors duration-300 group-hover:bg-primary/20">
