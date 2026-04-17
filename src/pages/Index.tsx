@@ -7,9 +7,9 @@ const Index = () => {
   const [hoveredRole, setHoveredRole] = useState<string | null>(null);
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-background px-4 py-6 sm:px-6 lg:px-8">
       {/* Hero Section */}
-      <div className="flex flex-1 flex-col items-center justify-center px-4 py-16">
+      <div className="flex flex-1 flex-col items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
         <div className="animate-fade-in text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-medium text-muted-foreground shadow-sm">
             <Shield className="h-3.5 w-3.5 text-primary" />
@@ -26,12 +26,13 @@ const Index = () => {
         </div>
 
         {/* Role Selection Cards */}
+        <div className="grid w-full max-w-2xl gap-6 sm:grid-cols-2 sm:gap-8" style={{ animationDelay: "0.15s", animationFillMode: "both" }}>
         <div className="grid w-full max-w-4xl gap-5 sm:grid-cols-2 lg:grid-cols-3" style={{ animationDelay: "0.15s", animationFillMode: "both" }}>
           <button
             onClick={() => navigate("/login/hod")}
             onMouseEnter={() => setHoveredRole("hod")}
             onMouseLeave={() => setHoveredRole(null)}
-            className="group animate-fade-in rounded-xl border border-border bg-card p-8 text-left shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md"
+            className="group animate-fade-in rounded-xl border border-border bg-card p-6 text-left shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md sm:p-8"
             style={{ animationDelay: "0.2s", animationFillMode: "both" }}
           >
             <div className="mb-4 inline-flex rounded-lg bg-primary/10 p-3 transition-colors duration-300 group-hover:bg-primary/20">
@@ -69,6 +70,7 @@ const Index = () => {
             onClick={() => navigate("/login/student")}
             onMouseEnter={() => setHoveredRole("student")}
             onMouseLeave={() => setHoveredRole(null)}
+            className="group animate-fade-in rounded-xl border border-border bg-card p-6 text-left shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md sm:p-8"
             className="group animate-fade-in rounded-xl border border-border bg-card p-8 text-left shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md sm:col-span-2 lg:col-span-1"
             style={{ animationDelay: "0.35s", animationFillMode: "both" }}
           >
