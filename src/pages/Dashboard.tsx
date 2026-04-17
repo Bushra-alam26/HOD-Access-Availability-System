@@ -1,4 +1,6 @@
 import { useEffect, useState, type ChangeEvent } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { CheckCircle2, Send, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle2, Send, XCircle, Clock, Check, X, Filter } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -10,11 +12,47 @@ import { FormField } from "@/components/FormField";
 
 type RequestStatus = "Pending" | "Approved" | "Rejected";
 
+type StudentRequest = {
+  id: number;
+  student: string;
+  topic: string;
+  notes: string;
+  status: RequestStatus;
+  submittedAt: string;
+};
+
 const requestStatusLabel: Record<RequestStatus, string> = {
   Pending: "🟡 Pending",
   Approved: "🟢 Approved",
   Rejected: "🔴 Rejected",
 };
+
+const initialRequests: StudentRequest[] = [
+  {
+    id: 1,
+    student: "Anita Sharma",
+    topic: "Lab access for project demo",
+    notes: "Need to finalize experiment setup before Friday.",
+    status: "Pending",
+    submittedAt: "Today, 10:18 AM",
+  },
+  {
+    id: 2,
+    student: "Rahul Patel",
+    topic: "HOD approval for attendance request",
+    notes: "Missed a lecture due to medical appointment.",
+    status: "Approved",
+    submittedAt: "Yesterday, 4:02 PM",
+  },
+  {
+    id: 3,
+    student: "Priya Menon",
+    topic: "Extra access to research lab",
+    notes: "Need additional time for data collection.",
+    status: "Rejected",
+    submittedAt: "Today, 9:12 AM",
+  },
+];
 
 interface StudentRequest {
   id: string;
@@ -45,6 +83,10 @@ const getStatusIcon = (status: RequestStatus) => {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const role = params.get("role") ?? "student";
+  const isHod = role === "hod";
   const [hodAvailable] = useState(true);
   const [topic, setTopic] = useState("");
   const [notes, setNotes] = useState("");
@@ -54,6 +96,7 @@ const Dashboard = () => {
   const [requestStatus, setRequestStatus] = useState<RequestStatus>("Pending");
   const [isRequesting, setIsRequesting] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [requests, setRequests] = useState<StudentRequest[]>(initialRequests);
   const [activeFilter, setActiveFilter] = useState<RequestStatus | "All">("All");
 
   const filteredRequests = activeFilter === "All"
@@ -112,6 +155,10 @@ const Dashboard = () => {
       ? "Great news — your meeting request has been approved."
       : "Your meeting request was rejected. You can try again later.";
 
+  const pendingCount = requests.filter((request) => request.status === "Pending").length;
+  const approvedCount = requests.filter((request) => request.status === "Approved").length;
+  const rejectedCount = requests.filter((request) => request.status === "Rejected").length;
+
   const handleTopicChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setTopic(value);
@@ -169,10 +216,26 @@ const Dashboard = () => {
     setIsRequesting(true);
   };
 
+  const updateRequestStatus = (id: number, status: RequestStatus) => {
+    setRequests((prev) =>
+      prev.map((request) =>
+        request.id === id
+          ? {
+              ...request,
+              status,
+            }
+          : request,
+      ),
+    );
+    toast.success(`Request ${status.toLowerCase()} successfully.`);
+  };
+
+  const approveRequest = (id: number) => updateRequestStatus(id, "Approved");
+  const rejectRequest = (id: number) => updateRequestStatus(id, "Rejected");
   const isFormValid = topic.trim() && notes.trim();
 
   return (
-    <div className="relative min-h-screen overflow-hidden animated-dashboard-background px-4 py-10 text-slate-900 dark:text-slate-100">
+    <div className="relative min-h-screen overflow-hidden animated-dashboard-background px-4 py-10 sm:px-6 lg:px-8 text-slate-900 dark:text-slate-100">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white to-transparent" />
         <div className="bg-animated-glow left-8 top-24 h-44 w-44 bg-sky-300/45" />
@@ -188,13 +251,13 @@ const Dashboard = () => {
         <div className="bg-animated-dot tiny left-3/4 top-[35%]" />
       </div>
 
-      <div className="relative mx-auto flex min-h-[calc(100vh-80px)] max-w-6xl items-center justify-center">
-        <div className="w-full rounded-[2rem] border border-slate-200/50 bg-white/95 p-8 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl sm:p-12">
-          <div className="mb-10 space-y-3">
-            <p className="text-sm uppercase tracking-[0.34em] text-slate-500">Student Dashboard</p>
-            <h1 className="text-4xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-5xl">Student Dashboard</h1>
+      <div className="relative mx-auto flex min-h-[calc(100vh-80px)] w-full max-w-6xl flex-col items-center justify-center">
+        <div className="w-full rounded-[2rem] border border-slate-200/50 bg-white/95 p-6 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl sm:p-8 lg:p-12">
+          <div className="mb-12 space-y-5 sm:space-y-6">
+            <p className="text-sm uppercase tracking-[0.34em] text-slate-500">{isHod ? "HOD Dashboard" : "Student Dashboard"}</p>
+            <h1 className="text-4xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-5xl">{isHod ? "HOD Request Center" : "Student Dashboard"}</h1>
             <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-400 sm:text-base">
-              Check HOD availability, submit your meeting request, and send access details with topic and notes.
+              {isHod ? "Review all student access requests and manage approvals." : "Check HOD availability, submit your meeting request, and send access details with topic and notes."}
             </p>
             <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-slate-200/70 bg-slate-50/90 p-4 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/80">
               <div className="flex items-center gap-3">
@@ -202,8 +265,8 @@ const Dashboard = () => {
                   <AvatarFallback>ST</AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Student Name</p>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">Student • hod request portal</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{isHod ? "HOD Name" : "Student Name"}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">{isHod ? "HOD • hod request portal" : "Student • hod request portal"}</p>
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-3">
@@ -216,8 +279,8 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-[1.2fr_0.95fr]">
-            <div className="space-y-6">
+          <div className="grid gap-10 lg:grid-cols-[1.2fr_0.95fr]">
+            <div className="space-y-8">
               <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-sm">
                 <div className="flex items-center justify-between gap-4">
                   <div>
@@ -239,46 +302,155 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-sm">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-sm font-medium text-slate-400">Your Meeting Request</p>
-                    <div className="mt-3 flex flex-wrap items-center gap-3">
-                      <Badge
-                        variant={
-                          requestStatus === "Pending"
-                            ? "pending"
-                            : requestStatus === "Approved"
-                            ? "approved"
-                            : "rejected"
-                        }
-                        className="rounded-full px-4 py-2 text-sm"
-                      >
-                        {requestStatusLabel[requestStatus]}
-                      </Badge>
-                      <span className="text-sm text-slate-300">{statusMessage}</span>
+              {isHod ? (
+                <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-sm">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-slate-400">Student Request Summary</p>
+                      <div className="mt-3 flex flex-wrap items-center gap-3">
+                        <Badge variant="pending" className="rounded-full px-4 py-2 text-sm">{pendingCount} Pending</Badge>
+                        <Badge variant="approved" className="rounded-full px-4 py-2 text-sm">{approvedCount} Approved</Badge>
+                        <Badge variant="rejected" className="rounded-full px-4 py-2 text-sm">{rejectedCount} Rejected</Badge>
+                      </div>
+                    </div>
+                    <div className="rounded-3xl bg-slate-900/70 px-4 py-3 text-sm text-slate-400">
+                      <div className="font-semibold text-white">Total requests</div>
+                      <div>{requests.length}</div>
                     </div>
                   </div>
-                  <div className="rounded-3xl bg-slate-900/70 px-4 py-3 text-sm text-slate-400">
-                    <div className="font-semibold text-white">Request flow</div>
-                    <div>{requestStatusLabel[requestStatus]}</div>
+                </div>
+              ) : (
+                <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-sm">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-slate-400">Your Meeting Request</p>
+                      <div className="mt-3 flex flex-wrap items-center gap-3">
+                        <Badge
+                          variant={
+                            requestStatus === "Pending"
+                              ? "pending"
+                              : requestStatus === "Approved"
+                              ? "approved"
+                              : "rejected"
+                          }
+                          className="rounded-full px-4 py-2 text-sm"
+                        >
+                          {requestStatusLabel[requestStatus]}
+                        </Badge>
+                        <span className="text-sm text-slate-300">{statusMessage}</span>
+                      </div>
+                    </div>
+                    <div className="rounded-3xl bg-slate-900/70 px-4 py-3 text-sm text-slate-400">
+                      <div className="font-semibold text-white">Request flow</div>
+                      <div>{requestStatusLabel[requestStatus]}</div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
 
-            <div className="space-y-6">
-              <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-sm">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-sky-500/10 text-sky-300">
-                    <Send className="h-6 w-6" />
+            <div className="space-y-8">
+              {isHod ? (
+                <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-sm">
+                  <div className="mb-4 flex items-center gap-3">
+                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-sky-500/10 text-sky-300">
+                      <Send className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-400">All Student Requests</p>
+                      <p className="text-sm text-slate-300">Review and approve or reject requests from all students.</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-slate-400">Submit Request Access</p>
-                    <p className="text-sm text-slate-300">Share your meeting topic and notes for HOD review.</p>
+
+                  <div className="overflow-hidden rounded-3xl border border-slate-200/70 bg-slate-950/95 text-slate-200 shadow-inner shadow-slate-950/40">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1.4fr_1fr_1fr_1.1fr] border-b border-slate-800 bg-slate-900/95 px-4 py-4 text-xs uppercase tracking-[0.18em] text-slate-500">
+                      <span>Student</span>
+                      <span>Requested</span>
+                      <span>Status</span>
+                      <span className="text-right">Action</span>
+                    </div>
+                    {requests.map((request) => (
+                      <div key={request.id} className="grid grid-cols-1 gap-4 sm:grid-cols-[1.4fr_1fr_1fr_1.1fr] border-t border-slate-900 px-4 py-4 text-sm">
+                        <div>
+                          <p className="font-medium text-white">{request.student}</p>
+                          <p className="mt-1 text-xs text-slate-400">{request.topic}</p>
+                        </div>
+                        <div className="text-slate-300">{request.submittedAt}</div>
+                        <Badge variant={request.status.toLowerCase() as "pending" | "approved" | "rejected"} className="rounded-full px-3 py-1 text-xs">
+                          {requestStatusLabel[request.status]}
+                        </Badge>
+                        <div className="flex flex-wrap justify-start gap-2 sm:justify-end">
+                          <Button size="sm" variant="secondary" disabled={request.status === "Approved"} onClick={() => approveRequest(request.id)}>
+                            Approve
+                          </Button>
+                          <Button size="sm" variant="destructive" disabled={request.status === "Rejected"} onClick={() => rejectRequest(request.id)}>
+                            Reject
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
+              ) : (
+                <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-sm">
+                  <div className="mb-4 flex items-center gap-3">
+                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-sky-500/10 text-sky-300">
+                      <Send className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-400">Submit Request Access</p>
+                      <p className="text-sm text-slate-300">Share your meeting topic and notes for HOD review.</p>
+                    </div>
+                  </div>
 
+                  <div className="grid gap-5">
+                    <label className="grid gap-2 text-slate-300">
+                      <span className="text-sm font-medium text-slate-300">Meeting Topic</span>
+                      <input
+                        value={topic}
+                        onChange={handleTopicChange}
+                        placeholder="Enter meeting topic"
+                        className="rounded-3xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none ring-1 ring-transparent transition focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20"
+                      />
+                      {topicError ? (
+                        <p className="mt-2 flex items-center gap-2 text-sm text-rose-400">
+                          <XCircle className="h-4 w-4" />
+                          {topicError}
+                        </p>
+                      ) : null}
+                    </label>
+
+                    <label className="grid gap-2 text-slate-300">
+                      <span className="text-sm font-medium text-slate-300">Notes</span>
+                      <textarea
+                        value={notes}
+                        onChange={(event) => setNotes(event.target.value)}
+                        placeholder="Add details or questions for the HOD"
+                        className="min-h-[120px] rounded-3xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none ring-1 ring-transparent transition focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20"
+                      />
+                    </label>
+
+                    {requestFeedback ? (
+                      <div className="rounded-3xl bg-emerald-100 px-4 py-3 text-sm font-medium text-emerald-900">
+                        {requestFeedback}
+                      </div>
+                    ) : null}
+
+                    <Button
+                      className="w-full rounded-full bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500 text-white shadow-[0_18px_30px_rgba(59,130,246,0.24)] transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_40px_rgba(37,99,235,0.28)]"
+                      onClick={handleSubmit}
+                      disabled={isRequesting}
+                    >
+                      {isRequesting ? (
+                        <span className="inline-flex items-center gap-2">
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                          Requesting...
+                        </span>
+                      ) : (
+                        "Submit Request"
+                      )}
+                    </Button>
+                  </div>
                 <div className="grid gap-4">
                   <FormField
                     label="Meeting Topic"
@@ -323,7 +495,7 @@ const Dashboard = () => {
                     )}
                   </Button>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
