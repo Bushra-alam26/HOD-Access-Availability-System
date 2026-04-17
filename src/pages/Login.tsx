@@ -114,6 +114,9 @@ const Login = () => {
         localStorage.setItem("userRole", userRole);
         localStorage.setItem("userEmail", data.user.email);
         localStorage.setItem("userName", `${data.user.firstName} ${data.user.surname}`);
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
         
         if (isHod || userRole === "hod") {
           navigate("/hod-dashboard");
@@ -220,6 +223,9 @@ const Login = () => {
           localStorage.setItem("userRole", userRole);
           localStorage.setItem("userEmail", data.user.email);
           localStorage.setItem("userName", `${data.user.firstName} ${data.user.surname}`);
+          if (data.token) {
+            localStorage.setItem("token", data.token);
+          }
           
           if (isHod || userRole === "hod") {
             navigate("/hod-dashboard");

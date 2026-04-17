@@ -92,8 +92,24 @@ const FacultyDashboard = () => {
   }, [darkMode]);
 
   // Handle logout
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const userEmail = localStorage.getItem("userEmail");
+    
+    // Call backend logout API
+    try {
+      await fetch("http://localhost:5001/api/auth/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: userEmail })
+      });
+    } catch (error) {
+      console.error("Logout API error:", error);
+    }
+    
     logout();
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("token");
     navigate("/");
   };
 
