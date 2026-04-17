@@ -1,12 +1,13 @@
 import { useEffect, useState, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, Send, XCircle, Clock, Check, X, Filter } from "lucide-react";
+import { CheckCircle2, Send, XCircle, Clock, Check, X, Filter, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/sonner";
 import { FormField } from "@/components/FormField";
+import { useAuth } from "@/hooks/useAuth";
 
 type RequestStatus = "Pending" | "Approved" | "Rejected";
 
@@ -45,20 +46,46 @@ const getStatusIcon = (status: RequestStatus) => {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [hodAvailable] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
   const [topic, setTopic] = useState("");
   const [notes, setNotes] = useState("");
   const [topicError, setTopicError] = useState("");
   const [notesError, setNotesError] = useState("");
-  const [requestFeedback, setRequestFeedback] = useState("");
   const [requestStatus, setRequestStatus] = useState<RequestStatus>("Pending");
   const [isRequesting, setIsRequesting] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [requestFeedback, setRequestFeedback] = useState("");
   const [activeFilter, setActiveFilter] = useState<RequestStatus | "All">("All");
+  
+  // Get user name from localStorage
+  const userName = localStorage.getItem("userName") || "Student";
 
   const filteredRequests = activeFilter === "All"
     ? dummyRequests
     : dummyRequests.filter(request => request.status === activeFilter);
+
+  // Handle logout
+  const handleLogout = async () => {
+    const userEmail = localStorage.getItem("userEmail");
+    
+    // Call backend logout API
+    try {
+      await fetch("http://localhost:5001/api/auth/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: userEmail })
+      });
+    } catch (error) {
+      console.error("Logout API error:", error);
+    }
+    
+    // Clear local storage and redirect
+    logout();
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("userName");
+    navigate("/");
+  };
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -192,22 +219,25 @@ const Dashboard = () => {
         <div className="w-full rounded-[2rem] border border-slate-200/50 bg-white/95 p-8 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl sm:p-12">
           <div className="mb-10 space-y-3">
             <p className="text-sm uppercase tracking-[0.34em] text-slate-500">Student Dashboard</p>
-            <h1 className="text-4xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-5xl">Student Dashboard</h1>
+            <h1 className="text-4xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-5xl">Welcome Back, {userName}!</h1>
             <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-400 sm:text-base">
               Check HOD availability, submit your meeting request, and send access details with topic and notes.
             </p>
             <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-slate-200/70 bg-slate-50/90 p-4 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/80">
               <div className="flex items-center gap-3">
                 <Avatar className="bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950">
-                  <AvatarFallback>ST</AvatarFallback>
+                  <AvatarFallback>{userName.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Student Name</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{userName}</p>
                   <p className="text-sm text-slate-500 dark:text-slate-400">Student • hod request portal</p>
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-3">
-                <Button variant="outline" size="sm" onClick={() => navigate("/")}>Logout</Button>
+                <Button variant="outline" size="sm" onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </Button>
                 <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-200/70 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
                   <span>{darkMode ? "Dark mode" : "Light mode"}</span>
                   <Switch checked={darkMode} onCheckedChange={setDarkMode} />

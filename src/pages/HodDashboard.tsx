@@ -5,17 +5,34 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Moon, Sun, Menu, X, Clock3, CalendarDays, CheckCircle2, Users } from "lucide-react";
+import { LogOut, Moon, Sun, Menu, X, Clock3, CalendarDays, CheckCircle2, Users, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RequestList } from "@/components/RequestList";
 import { SummaryCard, SummaryCardSkeleton } from "@/components/SummaryCard";
 import { useRequestsList } from "@/hooks/useRequests";
 import { useDashboardSummary } from "@/hooks/useDashboardSummary";
+import { useAuth } from "@/hooks/useAuth";
+
+interface LoggedInUser {
+  id: string;
+  fullName: string;
+  email: string;
+  usn: string;
+  branch: string;
+  semester: number;
+  lastLogin: string;
+}
 
 const HodDashboard = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [loggedInUsers, setLoggedInUsers] = useState<LoggedInUser[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  
+  // Get user name from localStorage
+  const userName = localStorage.getItem("userName") || "HOD";
 
   // Fetch requests for statistics
   const { data: requests = [] } = useRequestsList();
@@ -57,11 +74,45 @@ const HodDashboard = () => {
   }, [darkMode]);
 
   // Handle logout
-  const handleLogout = () => {
-    window.localStorage.removeItem("userRole");
-    window.localStorage.removeItem("userName");
+  const handleLogout = async () => {
+    const userEmail = localStorage.getItem("userEmail");
+    
+    try {
+      await fetch("http://localhost:5001/api/auth/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: userEmail })
+      });
+    } catch (error) {
+      console.error("Logout API error:", error);
+    }
+    
+    logout();
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("userName");
     navigate("/");
   };
+
+  // Fetch logged in users
+  const fetchLoggedInUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      const response = await fetch("http://localhost:5001/api/auth/logged-users");
+      const data = await response.json();
+      if (data.success) {
+        setLoggedInUsers(data.users);
+      }
+    } catch (error) {
+      console.error("Error fetching logged in users:", error);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  // Fetch logged in users on mount
+  useEffect(() => {
+    fetchLoggedInUsers();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
@@ -126,7 +177,7 @@ const HodDashboard = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Card */}
         <div className="mb-8 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-800 dark:to-blue-900 p-6 text-white shadow-lg">
-          <h2 className="text-3xl font-bold mb-2">Welcome Back, HOD!</h2>
+          <h2 className="text-3xl font-bold mb-2">Welcome Back, {userName}!</h2>
           <p className="text-blue-100">
             Manage student appointment requests and keep track of all meeting schedules.
           </p>
@@ -199,6 +250,78 @@ const HodDashboard = () => {
         {/* Request List Section */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <RequestList />
+        </div>
+
+        {/* Logged In Users Section */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                <UserCheck className="w-5 h-5 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Logged In Users
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Students currently logged in
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchLoggedInUsers}
+              disabled={loadingUsers}
+            >
+              {loadingUsers ? "Refreshing..." : "Refresh"}
+            </Button>
+          </div>
+
+          {loadingUsers ? (
+            <div className="text-center py-8 text-gray-500">Loading...</div>
+          ) : loggedInUsers.length === 0 ? (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
+              <p>No students currently logged in</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Name</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Email</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">USN</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Branch</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Sem</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Login Time</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loggedInUsers.map((user) => (
+                    <tr key={user.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                      <td className="py-3 px-4 text-sm text-gray-900 dark:text-white">{user.fullName}</td>
+                      <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">{user.email}</td>
+                      <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">{user.usn}</td>
+                      <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">{user.branch}</td>
+                      <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">{user.semester}</td>
+                      <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">
+                        {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : "N/A"}
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                          Online
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </main>
 
