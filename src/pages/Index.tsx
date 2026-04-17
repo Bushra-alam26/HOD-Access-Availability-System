@@ -7,9 +7,9 @@ const Index = () => {
   const [hoveredRole, setHoveredRole] = useState<string | null>(null);
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-background px-4 py-6 sm:px-6 lg:px-8">
       {/* Hero Section */}
-      <div className="flex flex-1 flex-col items-center justify-center px-4 py-16">
+      <div className="flex flex-1 flex-col items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
         <div className="animate-fade-in text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-medium text-muted-foreground shadow-sm">
             <Shield className="h-3.5 w-3.5 text-primary" />
@@ -26,7 +26,7 @@ const Index = () => {
         </div>
 
         {/* Role Selection Cards */}
-        <div className="grid w-full max-w-2xl gap-5 sm:grid-cols-2" style={{ animationDelay: "0.15s", animationFillMode: "both" }}>
+        <div className="grid w-full max-w-2xl gap-6 sm:grid-cols-2 sm:gap-8" style={{ animationDelay: "0.15s", animationFillMode: "both" }}>
           <button
             onClick={() => navigate("/login/hod")}
             onMouseEnter={() => setHoveredRole("hod")}

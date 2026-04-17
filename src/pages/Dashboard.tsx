@@ -168,7 +168,7 @@ const Dashboard = () => {
   const rejectRequest = (id: number) => updateRequestStatus(id, "Rejected");
 
   return (
-    <div className="relative min-h-screen overflow-hidden animated-dashboard-background px-4 py-10 text-slate-900 dark:text-slate-100">
+    <div className="relative min-h-screen overflow-hidden animated-dashboard-background px-4 py-10 sm:px-6 lg:px-8 text-slate-900 dark:text-slate-100">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white to-transparent" />
         <div className="bg-animated-glow left-8 top-24 h-44 w-44 bg-sky-300/45" />
@@ -185,8 +185,8 @@ const Dashboard = () => {
       </div>
 
       <div className="relative mx-auto flex min-h-[calc(100vh-80px)] max-w-6xl items-center justify-center">
-        <div className="w-full rounded-[2rem] border border-slate-200/50 bg-white/95 p-8 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl sm:p-12">
-          <div className="mb-10 space-y-3">
+        <div className="w-full rounded-[2rem] border border-slate-200/50 bg-white/95 p-6 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl sm:p-10 lg:p-12">
+          <div className="mb-12 space-y-4">
             <p className="text-sm uppercase tracking-[0.34em] text-slate-500">{isHod ? "HOD Dashboard" : "Student Dashboard"}</p>
             <h1 className="text-4xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-5xl">{isHod ? "HOD Request Center" : "Student Dashboard"}</h1>
             <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-400 sm:text-base">
@@ -212,8 +212,8 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-[1.2fr_0.95fr]">
-            <div className="space-y-6">
+          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.95fr]">
+            <div className="space-y-8">
               <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-sm">
                 <div className="flex items-center justify-between gap-4">
                   <div>
@@ -282,7 +282,7 @@ const Dashboard = () => {
               )}
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-8">
               {isHod ? (
                 <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-sm">
                   <div className="mb-4 flex items-center gap-3">
@@ -336,7 +336,7 @@ const Dashboard = () => {
                     </div>
                   </div>
 
-                  <div className="grid gap-4">
+                  <div className="grid gap-5">
                     <label className="grid gap-2 text-slate-300">
                       <span className="text-sm font-medium text-slate-300">Meeting Topic</span>
                       <input
