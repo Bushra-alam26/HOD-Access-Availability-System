@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogIn, GraduationCap, Shield, ArrowRight } from "lucide-react";
+import { LogIn, GraduationCap, Shield, Users, ArrowRight } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -27,6 +27,7 @@ const Index = () => {
 
         {/* Role Selection Cards */}
         <div className="grid w-full max-w-2xl gap-6 sm:grid-cols-2 sm:gap-8" style={{ animationDelay: "0.15s", animationFillMode: "both" }}>
+        <div className="grid w-full max-w-4xl gap-5 sm:grid-cols-2 lg:grid-cols-3" style={{ animationDelay: "0.15s", animationFillMode: "both" }}>
           <button
             onClick={() => navigate("/login/hod")}
             onMouseEnter={() => setHoveredRole("hod")}
@@ -47,10 +48,30 @@ const Index = () => {
           </button>
 
           <button
+            onClick={() => navigate("/login/faculty")}
+            onMouseEnter={() => setHoveredRole("faculty")}
+            onMouseLeave={() => setHoveredRole(null)}
+            className="group animate-fade-in rounded-xl border border-border bg-card p-8 text-left shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md"
+            style={{ animationDelay: "0.3s", animationFillMode: "both" }}
+          >
+            <div className="mb-4 inline-flex rounded-lg bg-primary/10 p-3 transition-colors duration-300 group-hover:bg-primary/20">
+              <Users className="h-6 w-6 text-primary" />
+            </div>
+            <h2 className="mb-1.5 text-lg font-semibold text-foreground">Faculty Login</h2>
+            <p className="mb-4 text-sm text-muted-foreground">
+              Access faculty resources and manage your profile.
+            </p>
+            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-all duration-200 group-hover:gap-2.5">
+              Continue <ArrowRight className="h-4 w-4" />
+            </span>
+          </button>
+
+          <button
             onClick={() => navigate("/login/student")}
             onMouseEnter={() => setHoveredRole("student")}
             onMouseLeave={() => setHoveredRole(null)}
             className="group animate-fade-in rounded-xl border border-border bg-card p-6 text-left shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md sm:p-8"
+            className="group animate-fade-in rounded-xl border border-border bg-card p-8 text-left shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md sm:col-span-2 lg:col-span-1"
             style={{ animationDelay: "0.35s", animationFillMode: "both" }}
           >
             <div className="mb-4 inline-flex rounded-lg bg-primary/10 p-3 transition-colors duration-300 group-hover:bg-primary/20">
