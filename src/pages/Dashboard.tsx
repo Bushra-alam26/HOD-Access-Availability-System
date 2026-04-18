@@ -1,6 +1,6 @@
 import { useEffect, useState, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, Send, XCircle, Clock, Check, X, Filter, LogOut } from "lucide-react";
+import { CheckCircle2, Send, Clock, Check, X, Filter, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
