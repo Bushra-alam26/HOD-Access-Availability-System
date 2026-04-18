@@ -200,7 +200,7 @@ const Dashboard = () => {
   const isFormValid = topic.trim() && notes.trim();
 
   return (
-    <div className="relative min-h-screen overflow-hidden animated-dashboard-background px-4 py-10 text-slate-900 dark:text-slate-100 page-enter">
+    <div className="relative min-h-screen overflow-hidden animated-dashboard-background px-3 py-6 md:px-4 md:py-10 text-slate-900 dark:text-slate-100 page-enter">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white to-transparent" />
         <div className="bg-animated-glow left-8 top-24 h-44 w-44 bg-sky-300/45" />
@@ -217,14 +217,14 @@ const Dashboard = () => {
       </div>
 
       <div className="relative mx-auto flex min-h-[calc(100vh-80px)] max-w-6xl items-center justify-center">
-        <div className="w-full rounded-[2rem] border border-slate-200/50 bg-white/95 p-8 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl sm:p-12">
-          <div className="mb-10 space-y-3 fade-in-up">
-            <p className="text-sm uppercase tracking-[0.34em] text-slate-500">Student Dashboard</p>
-            <h1 className="text-4xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-5xl">Welcome Back, {userName}!</h1>
-            <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-400 sm:text-base">
+        <div className="w-full rounded-2xl md:rounded-[2rem] border border-slate-200/50 bg-white/95 p-4 sm:p-6 md:p-8 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl">
+          <div className="mb-6 md:mb-10 space-y-3 fade-in-up">
+            <p className="text-xs md:text-sm uppercase tracking-[0.2em] md:tracking-[0.34em] text-slate-500">Student Dashboard</p>
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight text-slate-950 dark:text-white">Welcome Back, {userName}!</h1>
+            <p className="max-w-2xl text-sm leading-6 md:leading-7 text-slate-600 dark:text-slate-400">
               Check HOD availability, submit your meeting request, and send access details with topic and notes.
             </p>
-            <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-slate-200/70 bg-slate-50/90 p-4 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/80 fade-in-up stagger-1">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 rounded-2xl md:rounded-3xl border border-slate-200/70 bg-slate-50/90 p-3 sm:p-4 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/80 fade-in-up stagger-1">
               <div className="flex items-center gap-3 hover-lift transition-all duration-200">
                 <Avatar className="bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950 hover-scale transition-transform duration-200">
                   <AvatarFallback>{userName.charAt(0).toUpperCase()}</AvatarFallback>
@@ -247,9 +247,9 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-[1.2fr_0.95fr]">
-            <div className="space-y-6">
-              <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-sm fade-in-up stagger-2 card-animate">
+          <div className="grid gap-4 md:gap-6 lg:grid-cols-[1.2fr_0.95fr]">
+            <div className="space-y-4 md:space-y-6">
+              <div className="rounded-xl md:rounded-[1.75rem] border border-white/10 bg-white/5 p-4 md:p-6 shadow-sm fade-in-up stagger-2 card-animate">
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-sm font-medium text-slate-400">HOD Availability Status</p>
@@ -270,8 +270,8 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-sm fade-in-up stagger-3 card-animate">
-                <div className="flex items-center justify-between gap-4">
+              <div className="rounded-xl md:rounded-[1.75rem] border border-white/10 bg-white/5 p-4 md:p-6 shadow-sm fade-in-up stagger-3 card-animate">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                   <div>
                     <p className="text-sm font-medium text-slate-400">Your Meeting Request</p>
                     <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -298,11 +298,11 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="space-y-6">
-              <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-sm fade-in-up stagger-4 card-animate">
-                <div className="mb-4 flex items-center gap-3 hover-lift transition-all duration-200">
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-sky-500/10 text-sky-300 hover-scale transition-transform duration-200">
-                    <Send className="h-6 w-6" />
+            <div className="space-y-4 md:space-y-6">
+              <div className="rounded-xl md:rounded-[1.75rem] border border-white/10 bg-white/5 p-4 md:p-6 shadow-sm fade-in-up stagger-4 card-animate">
+                <div className="mb-3 md:mb-4 flex items-center gap-3 hover-lift transition-all duration-200">
+                  <div className="inline-flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-2xl md:rounded-3xl bg-sky-500/10 text-sky-300 hover-scale transition-transform duration-200">
+                    <Send className="h-5 w-5 md:h-6 md:w-6" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-slate-400">Submit Request Access</p>
@@ -359,62 +359,62 @@ const Dashboard = () => {
           </div>
 
           {/* My Request Status Section */}
-          <div className="mt-12 rounded-[2rem] border border-slate-200/50 bg-white/95 p-8 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-900/95 fade-in-up stagger-5">
-            <div className="mb-8">
-              <h2 className="text-2xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-3xl">My Request Status</h2>
+          <div className="mt-8 md:mt-12 rounded-2xl md:rounded-[2rem] border border-slate-200/50 bg-white/95 p-4 md:p-8 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-900/95 fade-in-up stagger-5">
+            <div className="mb-5 md:mb-8">
+              <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-slate-950 dark:text-white">My Request Status</h2>
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
                 Track the status of all your submitted requests and their current approval status.
               </p>
             </div>
 
             {/* Filter Tabs */}
-            <div className="mb-6 flex flex-wrap gap-2">
+            <div className="mb-4 md:mb-6 flex flex-wrap gap-2">
               <Button
                 variant={activeFilter === "All" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setActiveFilter("All")}
-                className="rounded-full btn-animate"
+                className="rounded-full btn-animate text-xs px-2.5 md:text-sm md:px-4"
               >
-                <Filter className="mr-2 h-4 w-4" />
-                All ({dummyRequests.length})
+                <Filter className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                <span className="hidden xs:inline">All</span> ({dummyRequests.length})
               </Button>
               <Button
                 variant={activeFilter === "Pending" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setActiveFilter("Pending")}
-                className="rounded-full btn-animate"
+                className="rounded-full btn-animate text-xs px-2.5 md:text-sm md:px-4"
               >
-                <Clock className="mr-2 h-4 w-4" />
-                Pending ({dummyRequests.filter(r => r.status === "Pending").length})
+                <Clock className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                <span className="hidden xs:inline">Pending</span> ({dummyRequests.filter(r => r.status === "Pending").length})
               </Button>
               <Button
                 variant={activeFilter === "Approved" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setActiveFilter("Approved")}
-                className="rounded-full btn-animate"
+                className="rounded-full btn-animate text-xs px-2.5 md:text-sm md:px-4"
               >
-                <Check className="mr-2 h-4 w-4" />
-                Approved ({dummyRequests.filter(r => r.status === "Approved").length})
+                <Check className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                <span className="hidden xs:inline">Approved</span> ({dummyRequests.filter(r => r.status === "Approved").length})
               </Button>
               <Button
                 variant={activeFilter === "Rejected" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setActiveFilter("Rejected")}
-                className="rounded-full btn-animate"
+                className="rounded-full btn-animate text-xs px-2.5 md:text-sm md:px-4"
               >
-                <X className="mr-2 h-4 w-4" />
-                Rejected ({dummyRequests.filter(r => r.status === "Rejected").length})
+                <X className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                <span className="hidden xs:inline">Rejected</span> ({dummyRequests.filter(r => r.status === "Rejected").length})
               </Button>
             </div>
 
             {/* Requests List */}
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {filteredRequests.length === 0 ? (
-                <div className="rounded-[1.5rem] border border-slate-200/50 bg-slate-50/50 p-8 text-center dark:border-slate-800/50 dark:bg-slate-900/50">
-                  <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-                    <Filter className="h-8 w-8 text-slate-400" />
+                <div className="rounded-xl md:rounded-[1.5rem] border border-slate-200/50 bg-slate-50/50 p-6 md:p-8 text-center dark:border-slate-800/50 dark:bg-slate-900/50">
+                  <div className="inline-flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+                    <Filter className="h-6 w-6 md:h-8 md:w-8 text-slate-400" />
                   </div>
-                  <h3 className="mt-4 text-lg font-medium text-slate-900 dark:text-slate-100">No requests found</h3>
+                  <h3 className="mt-3 md:mt-4 text-base md:text-lg font-medium text-slate-900 dark:text-slate-100">No requests found</h3>
                   <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
                     No requests match the selected filter.
                   </p>
@@ -423,7 +423,7 @@ const Dashboard = () => {
                 filteredRequests.map((request) => (
                   <div
                     key={request.id}
-                    className="rounded-[1.5rem] border border-slate-200/50 bg-white/50 p-6 shadow-sm transition-all hover:shadow-md dark:border-slate-800/50 dark:bg-slate-900/50"
+                    className="rounded-xl md:rounded-[1.5rem] border border-slate-200/50 bg-white/50 p-4 md:p-6 shadow-sm transition-all hover:shadow-md dark:border-slate-800/50 dark:bg-slate-900/50"
                   >
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex-1 space-y-2">
