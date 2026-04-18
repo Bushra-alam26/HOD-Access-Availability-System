@@ -6,56 +6,93 @@ const requestSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  studentName: {
+    type: String,
+    required: true
+  },
+  studentEmail: {
+    type: String,
+    required: true
+  },
+  studentUSN: {
+    type: String
+  },
+  studentBranch: {
+    type: String
+  },
+  studentSemester: {
+    type: Number
+  },
   facultyId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    ref: 'User'
+  },
+  facultyName: {
+    type: String
+  },
+  hodId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  hodName: {
+    type: String
   },
   reason: {
     type: String,
     required: [true, 'Reason is required'],
     trim: true,
-    maxlength: [500, 'Reason cannot exceed 500 characters']
+    maxlength: [200, 'Reason cannot exceed 200 characters']
+  },
+  description: {
+    type: String,
+    trim: true,
+    maxlength: [500, 'Description cannot exceed 500 characters']
+  },
+  requestDate: {
+    type: String,
+    required: [true, 'Request date is required']
+  },
+  requestTime: {
+    type: String,
+    required: [true, 'Request time is required']
   },
   status: {
     type: String,
     enum: ['Pending', 'Approved', 'Rejected'],
     default: 'Pending'
   },
-  date: {
-    type: Date,
-    required: [true, 'Date is required']
+  approvedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   },
-  time: {
-    type: String,
-    required: [true, 'Time is required']
+  approvedByName: {
+    type: String
   },
-  notes: {
-    type: String,
-    trim: true,
-    maxlength: [1000, 'Notes cannot exceed 1000 characters']
-  },
-  rescheduledTo: {
+  approvedAt: {
     type: Date
   },
-  rescheduleReason: {
+  rejectionReason: {
     type: String,
     trim: true
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  rejectedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   },
-  updatedAt: {
-    type: Date,
-    default: Date.now
+  rejectedByName: {
+    type: String
+  },
+  rejectedAt: {
+    type: Date
   }
+}, {
+  timestamps: true
 });
 
-// Update timestamp on save
-requestSchema.pre('save', function (next) {
-  this.updatedAt = Date.now();
-  next();
-});
+// Index for better query performance
+requestSchema.index({ studentId: 1, createdAt: -1 });
+requestSchema.index({ status: 1 });
+requestSchema.index({ facultyId: 1 });
+requestSchema.index({ hodId: 1 });
 
 module.exports = mongoose.model('Request', requestSchema);

@@ -1,10 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 const connectDB = require('./config/db');
 
-// Load environment variables
-dotenv.config();
+// Load environment variables from backend/.env
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Connect to database
 connectDB();
@@ -26,14 +27,14 @@ app.get('/api/test', (req, res) => {
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
-// const requestRoutes = require('./routes/requestRoutes');
-// const availabilityRoutes = require('./routes/availabilityRoutes');
+const requestRoutes = require('./routes/requestRoutes');
+const availabilityRoutes = require('./routes/availabilityRoutes');
 
 // Use routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-// app.use('/api/requests', requestRoutes);
-// app.use('/api/availability', availabilityRoutes);
+app.use('/api/requests', requestRoutes);
+app.use('/api/availability', availabilityRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
