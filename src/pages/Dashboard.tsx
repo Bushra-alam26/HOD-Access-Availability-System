@@ -84,10 +84,7 @@ const getStatusIcon = (status: RequestStatus) => {
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const role = params.get("role") ?? "student";
-  const isHod = role === "hod";
+  const { logout } = useAuth();
   const [hodAvailable] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [topic, setTopic] = useState("");
@@ -96,8 +93,7 @@ const Dashboard = () => {
   const [notesError, setNotesError] = useState("");
   const [requestStatus, setRequestStatus] = useState<RequestStatus>("Pending");
   const [isRequesting, setIsRequesting] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-  const [requests, setRequests] = useState<StudentRequest[]>(initialRequests);
+  const [requestFeedback, setRequestFeedback] = useState("");
   const [activeFilter, setActiveFilter] = useState<RequestStatus | "All">("All");
   
   // Get user name from localStorage
@@ -278,11 +274,11 @@ const Dashboard = () => {
         <div className="bg-animated-dot tiny left-3/4 top-[35%]" />
       </div>
 
-      <div className="relative mx-auto flex min-h-[calc(100vh-80px)] w-full max-w-6xl flex-col items-center justify-center">
-        <div className="w-full rounded-[2rem] border border-slate-200/50 bg-white/95 p-6 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl sm:p-8 lg:p-12">
-          <div className="mb-12 space-y-5 sm:space-y-6">
-            <p className="text-sm uppercase tracking-[0.34em] text-slate-500">{isHod ? "HOD Dashboard" : "Student Dashboard"}</p>
-            <h1 className="text-4xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-5xl">{isHod ? "HOD Request Center" : "Student Dashboard"}</h1>
+      <div className="relative mx-auto flex min-h-[calc(100vh-80px)] max-w-6xl items-center justify-center">
+        <div className="w-full rounded-[2rem] border border-slate-200/50 bg-white/95 p-8 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl sm:p-12">
+          <div className="mb-10 space-y-3">
+            <p className="text-sm uppercase tracking-[0.34em] text-slate-500">Student Dashboard</p>
+            <h1 className="text-4xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-5xl">Welcome Back, {userName}!</h1>
             <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-400 sm:text-base">
               {isHod ? "Review all student access requests and manage approvals." : "Check HOD availability, submit your meeting request, and send access details with topic and notes."}
             </p>
@@ -292,8 +288,8 @@ const Dashboard = () => {
                   <AvatarFallback>{userName.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{isHod ? "HOD Name" : "Student Name"}</p>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">{isHod ? "HOD • hod request portal" : "Student • hod request portal"}</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{userName}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Student • hod request portal</p>
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-3">

@@ -90,7 +90,20 @@ const Login = () => {
     if (!validateLoginForm()) return;
 
     setLoading(true);
-    setTimeout(() => navigate(`/dashboard?role=${role ?? "student"}`), 1200);
+    setLoginError("");
+
+    try {
+      const response = await fetch(`${API_URL}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ 
+          email, 
+          password,
+          role: role || "student"
+        })
+      });
 
       const data = await response.json();
 
@@ -213,6 +226,143 @@ const Login = () => {
           if (data.token) {
             localStorage.setItem("token", data.token);
           }
+          
+          if (isHod || userRole === "hod") {
+            navigate("/hod-dashboard");
+          } else if (isFaculty || userRole === "faculty") {
+            navigate("/faculty-dashboard");
+          } else {
+            navigate("/dashboard");
+          }
+        }, 1500);
+      } else {
+        setRegisterErrors({ form: data.message || "Registration failed" });
+      }
+    } catch (error) {
+      setRegisterErrors({ form: "Unable to connect to server. Please try again." });
+      console.error("Registration error:", error);
+    } finally {
+      setRegisterLoading(false);
+    }
+  };
+
+  // Check if login form is valid
+  const isLoginValid = email.trim() && password.length >= 6 && validateEmail(email);
+
+
+      if (data.success) {
+        // Login successful
+        const userRole = data.user.role || role || "student";
+        setAuth(userRole);
+        localStorage.setItem("userRole", userRole);
+        localStorage.setItem("userEmail", data.user.email);
+        localStorage.setItem("userName", `${data.user.firstName} ${data.user.surname}`);
+        
+        if (isHod || userRole === "hod") {
+          navigate("/hod-dashboard");
+        } else if (isFaculty || userRole === "faculty") {
+          navigate("/faculty-dashboard");
+        } else {
+          navigate("/dashboard");
+        }
+      } else if (data.isNewUser) {
+        // New user - show registration form
+        setRegisterData(prev => ({ ...prev, email }));
+        setShowRegister(true);
+        setLoginError("");
+      } else {
+        setLoginError(data.message || "Invalid email or password");
+      }
+    } catch (error) {
+      setLoginError("Unable to connect to server. Please try again.");
+      console.error("Login error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle register input change
+  const handleRegisterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setRegisterData(prev => ({ ...prev, [name]: value }));
+    
+    if (registerErrors[name]) {
+      setRegisterErrors(prev => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  // Validate registration form
+  const validateRegisterForm = () => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!registerData.firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    }
+    if (!registerData.surname.trim()) {
+      newErrors.surname = "Surname is required";
+    }
+    if (!registerData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!validateEmail(registerData.email)) {
+      newErrors.email = "Please enter a valid email";
+    }
+    if (!registerData.password) {
+      newErrors.password = "Password is required";
+    } else if (registerData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+    if (!registerData.branch.trim()) {
+      newErrors.branch = "Branch is required";
+    }
+    
+    // Only validate USN and semester for students
+    if (isStudent) {
+      if (!registerData.usn?.trim()) {
+        newErrors.usn = "USN is required";
+      }
+      if (!registerData.semester) {
+        newErrors.semester = "Semester is required";
+      }
+    }
+    
+    setRegisterErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle registration submit
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateRegisterForm()) return;
+
+    setRegisterLoading(true);
+
+    try {
+      const response = await fetch(`${API_URL}/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          ...registerData,
+          semester: isStudent ? (parseInt(registerData.semester) || 1) : undefined,
+          usn: isStudent ? registerData.usn : undefined,
+          role: role || "student"
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setRegisterSuccess(true);
+        
+        // Auto login after registration
+        setTimeout(() => {
+          const userRole = data.user.role || role || "student";
+          setAuth(userRole);
+          localStorage.setItem("userRole", userRole);
+          localStorage.setItem("userEmail", data.user.email);
+          localStorage.setItem("userName", `${data.user.firstName} ${data.user.surname}`);
           
           if (isHod || userRole === "hod") {
             navigate("/hod-dashboard");
@@ -541,8 +691,8 @@ const Login = () => {
         </Link>
 
         <form
-          onSubmit={handleSubmit}
-          className="animate-fade-in rounded-3xl border border-border bg-card p-8 shadow-lg sm:p-10"
+          onSubmit={handleLoginSubmit}
+          className="animate-fade-in rounded-xl border border-border bg-card p-8 shadow-lg"
         >
           <div className="mb-10 flex flex-col items-center gap-2">
             <div className="mb-3 inline-flex rounded-lg bg-primary/10 p-3">

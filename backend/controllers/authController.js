@@ -51,6 +51,9 @@ exports.login = async (req, res) => {
         success: true,
         message: 'Login successful',
         token,
+      return res.status(200).json({
+        success: true,
+        message: 'Login successful',
         user: {
           id: user._id,
           firstName: user.firstName,
@@ -178,6 +181,9 @@ exports.register = async (req, res) => {
       success: true,
       message: 'Registration successful',
       token,
+    res.status(201).json({
+      success: true,
+      message: 'Registration successful',
       user: {
         id: user._id,
         firstName: user.firstName,
