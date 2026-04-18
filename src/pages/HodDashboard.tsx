@@ -145,7 +145,7 @@ const HodDashboard = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 page-enter">
       {/* Navigation Header */}
       <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -193,7 +193,7 @@ const HodDashboard = () => {
                 variant="outline"
                 size="sm"
                 onClick={handleLogout}
-                className="gap-2"
+                className="gap-2 btn-animate"
               >
                 <LogOut className="w-4 h-4" />
                 <span className="hidden sm:inline">Logout</span>
@@ -206,7 +206,7 @@ const HodDashboard = () => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Card */}
-        <div className="mb-8 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-800 dark:to-blue-900 p-6 text-white shadow-lg">
+        <div className="mb-8 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-800 dark:to-blue-900 p-6 text-white shadow-lg fade-in-up">
           <h2 className="text-3xl font-bold mb-2">Welcome Back, {userName}!</h2>
           <p className="text-blue-100">
             Manage student appointment requests and keep track of all meeting schedules.
@@ -214,7 +214,7 @@ const HodDashboard = () => {
         </div>
 
         {/* Summary Cards */}
-        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between fade-in-up stagger-1">
           <div>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Dashboard Summary</h2>
             <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">

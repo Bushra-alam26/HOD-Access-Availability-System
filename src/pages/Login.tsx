@@ -282,18 +282,18 @@ const Login = () => {
   // Render registration form
   if (showRegister) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="flex min-h-screen items-center justify-center p-4 page-enter">
         <div className="w-full max-w-md">
           <Link
             to="/"
-            className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground link-animate"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 icon-rotate" />
             Back to portal
           </Link>
 
           {registerSuccess ? (
-            <div className="animate-fade-in rounded-xl border border-green-200 bg-green-50 p-8 text-center dark:bg-green-900/20">
+            <div className="fade-in-up rounded-xl border border-green-200 bg-green-50 p-8 text-center dark:bg-green-900/20">
               <div className="mb-4 inline-flex rounded-full bg-green-100 p-3 dark:bg-green-800">
                 <Check className="h-8 w-8 text-green-600 dark:text-green-400" />
               </div>
@@ -307,10 +307,10 @@ const Login = () => {
           ) : (
             <form
               onSubmit={handleRegisterSubmit}
-              className="animate-fade-in rounded-xl border border-border bg-card p-6 shadow-lg"
+              className="fade-in-up rounded-xl border border-border bg-card p-6 shadow-lg"
             >
               <div className="mb-5 flex flex-col items-center">
-                <div className="mb-3 inline-flex rounded-lg bg-primary/10 p-3">
+                <div className="mb-3 inline-flex rounded-lg bg-primary/10 p-3 hover-scale transition-transform duration-200">
                   <UserPlus className="h-6 w-6 text-primary" />
                 </div>
                 <h1 className="text-xl font-bold text-foreground">
@@ -543,22 +543,22 @@ const Login = () => {
 
   // Render login form
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div className="flex min-h-screen items-center justify-center p-4 page-enter">
       <div className="w-full max-w-sm">
         <Link
           to="/"
-          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground link-animate"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4 icon-rotate" />
           Back to portal
         </Link>
 
         <form
           onSubmit={handleLoginSubmit}
-          className="animate-fade-in rounded-xl border border-border bg-card p-8 shadow-lg"
+          className="fade-in-up rounded-xl border border-border bg-card p-8 shadow-lg"
         >
           <div className="mb-5 flex flex-col items-center">
-            <div className="mb-3 inline-flex rounded-lg bg-primary/10 p-3">
+            <div className="mb-3 inline-flex rounded-lg bg-primary/10 p-3 hover-scale transition-transform duration-200">
               <Icon className="h-6 w-6 text-primary" />
             </div>
             <h1 className="text-xl font-bold text-foreground">
@@ -570,7 +570,7 @@ const Login = () => {
           </div>
 
           {loginError && (
-            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20">
+            <div className="fade-in mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20">
               {loginError}
             </div>
           )}
@@ -618,7 +618,7 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading || !isLoginValid}
-            className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 btn-animate"
           >
             {loading ? (
               <span className="inline-flex items-center gap-2">
@@ -637,7 +637,7 @@ const Login = () => {
             {isFaculty ? "Not a faculty member?" : isHod ? "Not an HOD?" : "Not a student?"}{" "}
             <Link
               to={alternative.path}
-              className="font-medium text-primary hover:underline"
+              className="font-medium text-primary hover:underline link-animate"
             >
               {alternative.text}
             </Link>

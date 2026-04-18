@@ -200,7 +200,7 @@ const Dashboard = () => {
   const isFormValid = topic.trim() && notes.trim();
 
   return (
-    <div className="relative min-h-screen overflow-hidden animated-dashboard-background px-4 py-10 text-slate-900 dark:text-slate-100">
+    <div className="relative min-h-screen overflow-hidden animated-dashboard-background px-4 py-10 text-slate-900 dark:text-slate-100 page-enter">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white to-transparent" />
         <div className="bg-animated-glow left-8 top-24 h-44 w-44 bg-sky-300/45" />
@@ -218,15 +218,15 @@ const Dashboard = () => {
 
       <div className="relative mx-auto flex min-h-[calc(100vh-80px)] max-w-6xl items-center justify-center">
         <div className="w-full rounded-[2rem] border border-slate-200/50 bg-white/95 p-8 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl sm:p-12">
-          <div className="mb-10 space-y-3">
+          <div className="mb-10 space-y-3 fade-in-up">
             <p className="text-sm uppercase tracking-[0.34em] text-slate-500">Student Dashboard</p>
             <h1 className="text-4xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-5xl">Welcome Back, {userName}!</h1>
             <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-400 sm:text-base">
               Check HOD availability, submit your meeting request, and send access details with topic and notes.
             </p>
-            <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-slate-200/70 bg-slate-50/90 p-4 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/80">
-              <div className="flex items-center gap-3">
-                <Avatar className="bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950">
+            <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-slate-200/70 bg-slate-50/90 p-4 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/80 fade-in-up stagger-1">
+              <div className="flex items-center gap-3 hover-lift transition-all duration-200">
+                <Avatar className="bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950 hover-scale transition-transform duration-200">
                   <AvatarFallback>{userName.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div>
@@ -249,7 +249,7 @@ const Dashboard = () => {
 
           <div className="grid gap-6 lg:grid-cols-[1.2fr_0.95fr]">
             <div className="space-y-6">
-              <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-sm">
+              <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-sm fade-in-up stagger-2 card-animate">
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-sm font-medium text-slate-400">HOD Availability Status</p>
@@ -270,7 +270,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-sm">
+              <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-sm fade-in-up stagger-3 card-animate">
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-sm font-medium text-slate-400">Your Meeting Request</p>
@@ -299,9 +299,9 @@ const Dashboard = () => {
             </div>
 
             <div className="space-y-6">
-              <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-sm">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-sky-500/10 text-sky-300">
+              <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-sm fade-in-up stagger-4 card-animate">
+                <div className="mb-4 flex items-center gap-3 hover-lift transition-all duration-200">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-sky-500/10 text-sky-300 hover-scale transition-transform duration-200">
                     <Send className="h-6 w-6" />
                   </div>
                   <div>
@@ -359,7 +359,7 @@ const Dashboard = () => {
           </div>
 
           {/* My Request Status Section */}
-          <div className="mt-12 rounded-[2rem] border border-slate-200/50 bg-white/95 p-8 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-900/95">
+          <div className="mt-12 rounded-[2rem] border border-slate-200/50 bg-white/95 p-8 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-900/95 fade-in-up stagger-5">
             <div className="mb-8">
               <h2 className="text-2xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-3xl">My Request Status</h2>
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
@@ -373,7 +373,7 @@ const Dashboard = () => {
                 variant={activeFilter === "All" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setActiveFilter("All")}
-                className="rounded-full"
+                className="rounded-full btn-animate"
               >
                 <Filter className="mr-2 h-4 w-4" />
                 All ({dummyRequests.length})
@@ -382,7 +382,7 @@ const Dashboard = () => {
                 variant={activeFilter === "Pending" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setActiveFilter("Pending")}
-                className="rounded-full"
+                className="rounded-full btn-animate"
               >
                 <Clock className="mr-2 h-4 w-4" />
                 Pending ({dummyRequests.filter(r => r.status === "Pending").length})
@@ -391,7 +391,7 @@ const Dashboard = () => {
                 variant={activeFilter === "Approved" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setActiveFilter("Approved")}
-                className="rounded-full"
+                className="rounded-full btn-animate"
               >
                 <Check className="mr-2 h-4 w-4" />
                 Approved ({dummyRequests.filter(r => r.status === "Approved").length})
@@ -400,7 +400,7 @@ const Dashboard = () => {
                 variant={activeFilter === "Rejected" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setActiveFilter("Rejected")}
-                className="rounded-full"
+                className="rounded-full btn-animate"
               >
                 <X className="mr-2 h-4 w-4" />
                 Rejected ({dummyRequests.filter(r => r.status === "Rejected").length})
