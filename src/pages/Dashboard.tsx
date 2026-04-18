@@ -122,6 +122,7 @@ const Dashboard = () => {
     logout();
     localStorage.removeItem("userEmail");
     localStorage.removeItem("userName");
+    localStorage.removeItem("token");
     navigate("/");
   };
 

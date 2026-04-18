@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { generateToken } = require('../utils/generateToken');
 
 // @desc    Login user or register new user
 // @route   POST /api/auth/login
@@ -43,6 +44,13 @@ exports.login = async (req, res) => {
       user.lastLogin = new Date();
       await user.save();
 
+      // Generate JWT token
+      const token = generateToken(user);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Login successful',
+        token,
       return res.status(200).json({
         success: true,
         message: 'Login successful',
@@ -166,6 +174,13 @@ exports.register = async (req, res) => {
       lastLogin: new Date()
     });
 
+    // Generate JWT token
+    const token = generateToken(user);
+
+    res.status(201).json({
+      success: true,
+      message: 'Registration successful',
+      token,
     res.status(201).json({
       success: true,
       message: 'Registration successful',
