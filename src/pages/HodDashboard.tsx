@@ -32,6 +32,7 @@ const HodDashboard = () => {
   const [allUsers, setAllUsers] = useState<LoggedInUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [showAllUsers, setShowAllUsers] = useState(false);
+  const [loadingUsers, setLoadingUsers] = useState(false);
   
   // Get user name from localStorage
   const userName = localStorage.getItem("userName") || "HOD";
@@ -106,6 +107,7 @@ const HodDashboard = () => {
           "Authorization": `Bearer ${token}`
         }
       });
+      const response = await fetch("http://localhost:5001/api/auth/logged-users");
       const data = await response.json();
       if (data.success) {
         setLoggedInUsers(data.users);

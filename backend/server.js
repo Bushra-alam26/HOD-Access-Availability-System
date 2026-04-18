@@ -27,14 +27,16 @@ app.get('/api/test', (req, res) => {
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
-const requestRoutes = require('./routes/requestRoutes');
-const availabilityRoutes = require('./routes/availabilityRoutes');
+// const userRoutes = require('./routes/userRoutes');
+// const requestRoutes = require('./routes/requestRoutes');
+// const availabilityRoutes = require('./routes/availabilityRoutes');
 
 // Use routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/requests', requestRoutes);
-app.use('/api/availability', availabilityRoutes);
+// app.use('/api/users', userRoutes);
+// app.use('/api/requests', requestRoutes);
+// app.use('/api/availability', availabilityRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
