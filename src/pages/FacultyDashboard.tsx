@@ -110,6 +110,8 @@ const FacultyDashboard = () => {
     localStorage.removeItem("userEmail");
     localStorage.removeItem("userName");
     localStorage.removeItem("token");
+  const handleLogout = () => {
+    logout();
     navigate("/");
   };
 

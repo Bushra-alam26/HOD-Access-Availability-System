@@ -27,5 +27,12 @@ router.get('/logged-users', protect, getLoggedInUsers);
 // @desc    Get all users (for HOD)
 // @access  Private (requires auth)
 router.get('/users', protect, getAllUsers);
+// @access  Private
+router.get('/logged-users', getLoggedInUsers);
+
+// @route   GET /api/auth/users
+// @desc    Get all users (for HOD)
+// @access  Private
+router.get('/users', getAllUsers);
 
 module.exports = router;
