@@ -119,9 +119,31 @@ const HodDashboard = () => {
     }
   };
 
+  // Fetch all registered users
+  const fetchAllUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:5001/api/auth/users", {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      if (data.success) {
+        setAllUsers(data.users);
+      }
+    } catch (error) {
+      console.error("Error fetching all users:", error);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
   // Fetch logged in users on mount
   useEffect(() => {
     fetchLoggedInUsers();
+    fetchAllUsers();
   }, []);
 
   return (
@@ -271,29 +293,47 @@ const HodDashboard = () => {
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Logged In Users
+                  {showAllUsers ? "All Registered Students" : "Logged In Users"}
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Students currently logged in
+                  {showAllUsers ? "All registered students in the system" : "Students currently logged in"}
                 </p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={fetchLoggedInUsers}
-              disabled={loadingUsers}
-            >
-              {loadingUsers ? "Refreshing..." : "Refresh"}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant={showAllUsers ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowAllUsers(false)}
+                disabled={loadingUsers}
+              >
+                Logged In
+              </Button>
+              <Button
+                variant={showAllUsers ? "outline" : "default"}
+                size="sm"
+                onClick={() => setShowAllUsers(true)}
+                disabled={loadingUsers}
+              >
+                View All
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => { fetchLoggedInUsers(); fetchAllUsers(); }}
+                disabled={loadingUsers}
+              >
+                {loadingUsers ? "Refreshing..." : "Refresh"}
+              </Button>
+            </div>
           </div>
 
           {loadingUsers ? (
             <div className="text-center py-8 text-gray-500">Loading...</div>
-          ) : loggedInUsers.length === 0 ? (
+          ) : (showAllUsers ? allUsers.length === 0 : loggedInUsers.length === 0) ? (
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p>No students currently logged in</p>
+              <p>{showAllUsers ? "No registered students found" : "No students currently logged in"}</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -305,27 +345,43 @@ const HodDashboard = () => {
                     <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">USN</th>
                     <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Branch</th>
                     <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Sem</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Login Time</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
+                    {showAllUsers && <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>}
+                    {!showAllUsers && <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Login Time</th>}
+                    {!showAllUsers && <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>}
                   </tr>
                 </thead>
                 <tbody>
-                  {loggedInUsers.map((user) => (
+                  {(showAllUsers ? allUsers : loggedInUsers).map((user) => (
                     <tr key={user.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                       <td className="py-3 px-4 text-sm text-gray-900 dark:text-white">{user.fullName}</td>
                       <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">{user.email}</td>
                       <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">{user.usn}</td>
                       <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">{user.branch}</td>
                       <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">{user.semester}</td>
-                      <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">
-                        {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : "N/A"}
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                          <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                          Online
-                        </span>
-                      </td>
+                      {showAllUsers ? (
+                        <td className="py-3 px-4">
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+                            user.isLoggedIn 
+                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                              : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
+                          }`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${user.isLoggedIn ? "bg-green-500" : "bg-gray-400"}`}></span>
+                            {user.isLoggedIn ? "Online" : "Offline"}
+                          </span>
+                        </td>
+                      ) : (
+                        <>
+                          <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">
+                            {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : "N/A"}
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                              <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                              Online
+                            </span>
+                          </td>
+                        </>
+                      )}
                     </tr>
                   ))}
                 </tbody>

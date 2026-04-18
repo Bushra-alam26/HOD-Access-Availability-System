@@ -1,30 +1,39 @@
 const mongoose = require('mongoose');
 
 const availabilitySchema = new mongoose.Schema({
-  hodId: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
-    unique: true
+    required: true
+  },
+  role: {
+    type: String,
+    enum: ['hod', 'faculty'],
+    required: true
   },
   status: {
     type: String,
     enum: ['Available', 'Busy', 'Offline'],
     default: 'Available'
   },
-  nextAvailable: {
-    type: Date
-  },
-  customMessage: {
+  message: {
     type: String,
     trim: true,
     maxlength: [200, 'Message cannot exceed 200 characters']
+  },
+  nextAvailable: {
+    type: Date
   },
   updatedAt: {
     type: Date,
     default: Date.now
   }
+}, {
+  timestamps: true
 });
+
+// Compound index for unique user availability
+availabilitySchema.index({ userId: 1 }, { unique: true });
 
 // Update timestamp on save
 availabilitySchema.pre('save', function (next) {
