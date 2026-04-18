@@ -8,11 +8,16 @@ import { useNavigate } from "react-router-dom";
 import { LogOut, Moon, Sun, Menu, X, Clock, BookOpen, CheckCircle2, Users, Check, X as XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
 
 const FacultyDashboard = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  // Get user name from localStorage
+  const userName = localStorage.getItem("userName") || "Faculty";
 
   // HOD Status states: available, busy, in-meeting, offline
   const [hodStatus] = useState<"available" | "busy" | "in-meeting" | "offline">("available");
@@ -88,8 +93,7 @@ const FacultyDashboard = () => {
 
   // Handle logout
   const handleLogout = () => {
-    window.localStorage.removeItem("userRole");
-    window.localStorage.removeItem("userName");
+    logout();
     navigate("/");
   };
 
@@ -213,7 +217,7 @@ const FacultyDashboard = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Card */}
         <div className="mb-8 rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-800 dark:to-purple-900 p-6 text-white shadow-lg">
-          <h2 className="text-3xl font-bold mb-2">Welcome Back, Faculty!</h2>
+          <h2 className="text-3xl font-bold mb-2">Welcome Back, {userName}!</h2>
           <p className="text-purple-100">
             Check HOD availability, manage your meetings, and track appointment requests.
           </p>
