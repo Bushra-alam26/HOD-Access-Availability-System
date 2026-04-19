@@ -150,25 +150,25 @@ const HodDashboard = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 page-enter">
       {/* Navigation Header */}
       <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-3 md:px-4 sm:px-6 lg:px-8 py-3 md:py-4">
+          <div className="flex items-center justify-between gap-2">
             {/* Logo/Title */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
               <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="md:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                className="md:hidden p-1.5 md:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
               >
                 {isSidebarOpen ? (
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4 md:w-5 md:h-5" />
                 ) : (
-                  <Menu className="w-5 h-5" />
+                  <Menu className="w-4 h-4 md:w-5 md:h-5" />
                 )}
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white">
                   📚 HOD Dashboard
                 </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 hidden sm:block">
                   Appointment & Request Management
                 </p>
               </div>
@@ -206,20 +206,20 @@ const HodDashboard = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-3 md:px-4 sm:px-6 lg:px-8 py-4 md:py-8">
         {/* Welcome Card */}
-        <div className="mb-8 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-800 dark:to-blue-900 p-6 text-white shadow-lg fade-in-up">
-          <h2 className="text-3xl font-bold mb-2">Welcome Back, {userName}!</h2>
+        <div className="mb-6 md:mb-8 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-800 dark:to-blue-900 p-4 md:p-6 text-white shadow-lg fade-in-up">
+          <h2 className="text-xl md:text-3xl font-bold mb-1 md:mb-2">Welcome Back, {userName}!</h2>
           <p className="text-blue-100">
             Manage student appointment requests and keep track of all meeting schedules.
           </p>
         </div>
 
         {/* Summary Cards */}
-        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between fade-in-up stagger-1">
+        <div className="mb-4 md:mb-6 flex flex-col sm:flex-row gap-3 md:gap-4 md:items-center md:justify-between fade-in-up stagger-1">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Dashboard Summary</h2>
-            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white">Dashboard Summary</h2>
+            <p className="mt-1 text-xs md:text-sm text-gray-600 dark:text-gray-400">
               Live request and meeting insights for the HOD team.
             </p>
           </div>

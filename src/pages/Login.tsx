@@ -419,41 +419,41 @@ const Login = () => {
   // Render registration form
   if (showRegister) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-4 page-enter">
+      <div className="flex min-h-screen items-center justify-center p-3 md:p-4 page-enter">
         <div className="w-full max-w-md">
           <Link
             to="/"
-            className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground link-animate"
+            className="mb-4 md:mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground link-animate"
           >
             <ArrowLeft className="h-4 w-4 icon-rotate" />
             Back to portal
           </Link>
 
           {registerSuccess ? (
-            <div className="fade-in-up rounded-xl border border-green-200 bg-green-50 p-8 text-center dark:bg-green-900/20">
-              <div className="mb-4 inline-flex rounded-full bg-green-100 p-3 dark:bg-green-800">
-                <Check className="h-8 w-8 text-green-600 dark:text-green-400" />
+            <div className="fade-in-up rounded-xl border border-green-200 bg-green-50 p-6 md:p-8 text-center dark:bg-green-900/20">
+              <div className="mb-3 md:mb-4 inline-flex rounded-full bg-green-100 p-2.5 md:p-3 dark:bg-green-800">
+                <Check className="h-6 w-6 md:h-8 md:w-8 text-green-600 dark:text-green-400" />
               </div>
-              <h2 className="text-xl font-bold text-green-800 dark:text-green-200">
+              <h2 className="text-lg md:text-xl font-bold text-green-800 dark:text-green-200">
                 Registration Successful!
               </h2>
-              <p className="mt-2 text-sm text-green-700 dark:text-green-300">
+              <p className="mt-1 md:mt-2 text-xs md:text-sm text-green-700 dark:text-green-300">
                 Redirecting to dashboard...
               </p>
             </div>
           ) : (
             <form
               onSubmit={handleRegisterSubmit}
-              className="fade-in-up rounded-xl border border-border bg-card p-6 shadow-lg"
+              className="fade-in-up rounded-xl border border-border bg-card p-4 md:p-6 shadow-lg"
             >
-              <div className="mb-5 flex flex-col items-center">
-                <div className="mb-3 inline-flex rounded-lg bg-primary/10 p-3 hover-scale transition-transform duration-200">
-                  <UserPlus className="h-6 w-6 text-primary" />
+              <div className="mb-4 md:mb-5 flex flex-col items-center">
+                <div className="mb-2 md:mb-3 inline-flex rounded-lg bg-primary/10 p-2.5 md:p-3 hover-scale transition-transform duration-200">
+                  <UserPlus className="h-5 w-5 md:h-6 md:w-6 text-primary" />
                 </div>
-                <h1 className="text-xl font-bold text-foreground">
+                <h1 className="text-lg md:text-xl font-bold text-foreground">
                   Complete Registration
                 </h1>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-1 text-xs md:text-sm text-muted-foreground">
                   Fill in your details to create your account
                 </p>
               </div>
@@ -464,9 +464,9 @@ const Login = () => {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-foreground">
+                  <label className="mb-1 block text-sm font-medium text-foreground">
                     First Name <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -474,7 +474,7 @@ const Login = () => {
                     name="firstName"
                     value={registerData.firstName}
                     onChange={handleRegisterChange}
-                    className={`w-full rounded-lg border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all ${
+                    className={`w-full rounded-lg border bg-background px-3 py-2 text-sm md:py-2.5 text-foreground outline-none transition-all ${
                       registerErrors.firstName 
                         ? "border-red-500 bg-red-50 dark:bg-red-950/20" 
                         : "border-input focus:border-primary"
@@ -486,7 +486,7 @@ const Login = () => {
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-foreground">
+                  <label className="mb-1 block text-sm font-medium text-foreground">
                     Surname <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -494,7 +494,7 @@ const Login = () => {
                     name="surname"
                     value={registerData.surname}
                     onChange={handleRegisterChange}
-                    className={`w-full rounded-lg border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all ${
+                    className={`w-full rounded-lg border bg-background px-3 py-2 text-sm md:py-2.5 text-foreground outline-none transition-all ${
                       registerErrors.surname 
                         ? "border-red-500 bg-red-50 dark:bg-red-950/20" 
                         : "border-input focus:border-primary"
@@ -692,16 +692,16 @@ const Login = () => {
 
         <form
           onSubmit={handleLoginSubmit}
-          className="fade-in-up rounded-xl border border-border bg-card p-8 shadow-lg"
+          className="fade-in-up rounded-xl border border-border bg-card p-5 md:p-8 shadow-lg"
         >
           <div className="mb-10 flex flex-col items-center gap-2">
             <div className="mb-3 inline-flex rounded-lg bg-primary/10 p-3">
               <Icon className="h-6 w-6 text-primary" />
             </div>
-            <h1 className="text-xl font-bold text-foreground">
+            <h1 className="text-lg md:text-xl font-bold text-foreground">
               {getTitle()}
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-xs md:text-sm text-muted-foreground">
               {getDescription()}
             </p>
           </div>
@@ -712,8 +712,8 @@ const Login = () => {
             </div>
           )}
 
-          <div className="mb-4">
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
+          <div className="mb-3 md:mb-4">
+            <label className="mb-1 block text-sm font-medium text-foreground">
               Email <span className="text-red-500">*</span>
             </label>
             <input
@@ -721,7 +721,7 @@ const Login = () => {
               value={email}
               onChange={handleEmailChange}
               placeholder="student@gmail.com"
-              className={`w-full rounded-lg border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all ${
+              className={`w-full rounded-lg border bg-background px-3 py-2 text-sm md:py-2.5 text-foreground outline-none transition-all ${
                 errors.email 
                   ? "border-red-500 bg-red-50 dark:bg-red-950/20" 
                   : "border-input focus:border-primary"
@@ -732,8 +732,8 @@ const Login = () => {
             )}
           </div>
 
-          <div className="mb-6">
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
+          <div className="mb-4 md:mb-6">
+            <label className="mb-1 block text-sm font-medium text-foreground">
               Password <span className="text-red-500">*</span>
             </label>
             <input
@@ -741,7 +741,7 @@ const Login = () => {
               value={password}
               onChange={handlePasswordChange}
               placeholder="••••••••"
-              className={`w-full rounded-lg border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all ${
+              className={`w-full rounded-lg border bg-background px-3 py-2 text-sm md:py-2.5 text-foreground outline-none transition-all ${
                 errors.password 
                   ? "border-red-500 bg-red-50 dark:bg-red-950/20" 
                   : "border-input focus:border-primary"
