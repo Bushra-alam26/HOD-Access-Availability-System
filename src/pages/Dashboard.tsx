@@ -2,7 +2,7 @@ import { useEffect, useState, type ChangeEvent } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { CheckCircle2, Send, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, Send, XCircle, Clock, Check, X, Filter, LogOut } from "lucide-react";
+import { CheckCircle2, Send, Clock, Check, X, Filter, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -282,9 +282,9 @@ const Dashboard = () => {
             <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-400 sm:text-base">
               {isHod ? "Review all student access requests and manage approvals." : "Check HOD availability, submit your meeting request, and send access details with topic and notes."}
             </p>
-            <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-slate-200/70 bg-slate-50/90 p-4 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/80">
-              <div className="flex items-center gap-3">
-                <Avatar className="bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 rounded-2xl md:rounded-3xl border border-slate-200/70 bg-slate-50/90 p-3 sm:p-4 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/80 fade-in-up stagger-1">
+              <div className="flex items-center gap-3 hover-lift transition-all duration-200">
+                <Avatar className="bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950 hover-scale transition-transform duration-200">
                   <AvatarFallback>{userName.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div>
@@ -526,62 +526,62 @@ const Dashboard = () => {
           </div>
 
           {/* My Request Status Section */}
-          <div className="mt-12 rounded-[2rem] border border-slate-200/50 bg-white/95 p-8 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-900/95">
-            <div className="mb-8">
-              <h2 className="text-2xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-3xl">My Request Status</h2>
+          <div className="mt-8 md:mt-12 rounded-2xl md:rounded-[2rem] border border-slate-200/50 bg-white/95 p-4 md:p-8 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-900/95 fade-in-up stagger-5">
+            <div className="mb-5 md:mb-8">
+              <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-slate-950 dark:text-white">My Request Status</h2>
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
                 Track the status of all your submitted requests and their current approval status.
               </p>
             </div>
 
             {/* Filter Tabs */}
-            <div className="mb-6 flex flex-wrap gap-2">
+            <div className="mb-4 md:mb-6 flex flex-wrap gap-2">
               <Button
                 variant={activeFilter === "All" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setActiveFilter("All")}
-                className="rounded-full"
+                className="rounded-full btn-animate text-xs px-2.5 md:text-sm md:px-4"
               >
-                <Filter className="mr-2 h-4 w-4" />
-                All ({dummyRequests.length})
+                <Filter className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                <span className="hidden xs:inline">All</span> ({dummyRequests.length})
               </Button>
               <Button
                 variant={activeFilter === "Pending" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setActiveFilter("Pending")}
-                className="rounded-full"
+                className="rounded-full btn-animate text-xs px-2.5 md:text-sm md:px-4"
               >
-                <Clock className="mr-2 h-4 w-4" />
-                Pending ({dummyRequests.filter(r => r.status === "Pending").length})
+                <Clock className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                <span className="hidden xs:inline">Pending</span> ({dummyRequests.filter(r => r.status === "Pending").length})
               </Button>
               <Button
                 variant={activeFilter === "Approved" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setActiveFilter("Approved")}
-                className="rounded-full"
+                className="rounded-full btn-animate text-xs px-2.5 md:text-sm md:px-4"
               >
-                <Check className="mr-2 h-4 w-4" />
-                Approved ({dummyRequests.filter(r => r.status === "Approved").length})
+                <Check className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                <span className="hidden xs:inline">Approved</span> ({dummyRequests.filter(r => r.status === "Approved").length})
               </Button>
               <Button
                 variant={activeFilter === "Rejected" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setActiveFilter("Rejected")}
-                className="rounded-full"
+                className="rounded-full btn-animate text-xs px-2.5 md:text-sm md:px-4"
               >
-                <X className="mr-2 h-4 w-4" />
-                Rejected ({dummyRequests.filter(r => r.status === "Rejected").length})
+                <X className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                <span className="hidden xs:inline">Rejected</span> ({dummyRequests.filter(r => r.status === "Rejected").length})
               </Button>
             </div>
 
             {/* Requests List */}
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {filteredRequests.length === 0 ? (
-                <div className="rounded-[1.5rem] border border-slate-200/50 bg-slate-50/50 p-8 text-center dark:border-slate-800/50 dark:bg-slate-900/50">
-                  <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-                    <Filter className="h-8 w-8 text-slate-400" />
+                <div className="rounded-xl md:rounded-[1.5rem] border border-slate-200/50 bg-slate-50/50 p-6 md:p-8 text-center dark:border-slate-800/50 dark:bg-slate-900/50">
+                  <div className="inline-flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+                    <Filter className="h-6 w-6 md:h-8 md:w-8 text-slate-400" />
                   </div>
-                  <h3 className="mt-4 text-lg font-medium text-slate-900 dark:text-slate-100">No requests found</h3>
+                  <h3 className="mt-3 md:mt-4 text-base md:text-lg font-medium text-slate-900 dark:text-slate-100">No requests found</h3>
                   <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
                     No requests match the selected filter.
                   </p>
@@ -590,7 +590,7 @@ const Dashboard = () => {
                 filteredRequests.map((request) => (
                   <div
                     key={request.id}
-                    className="rounded-[1.5rem] border border-slate-200/50 bg-white/50 p-6 shadow-sm transition-all hover:shadow-md dark:border-slate-800/50 dark:bg-slate-900/50"
+                    className="rounded-xl md:rounded-[1.5rem] border border-slate-200/50 bg-white/50 p-4 md:p-6 shadow-sm transition-all hover:shadow-md dark:border-slate-800/50 dark:bg-slate-900/50"
                   >
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex-1 space-y-2">
