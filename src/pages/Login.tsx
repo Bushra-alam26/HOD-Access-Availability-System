@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import { Shield, GraduationCap, Users, ArrowLeft, UserPlus, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/components/ui/sonner";
 
 const API_URL = "http://localhost:5001/api/auth";
 
@@ -29,7 +30,9 @@ const Login = () => {
     surname: "",
     email: "",
     password: "",
-    branch: ""
+    branch: "",
+    usn: "",
+    semester: ""
   });
   const [registerErrors, setRegisterErrors] = useState<Record<string, string>>({});
   const [registerLoading, setRegisterLoading] = useState(false);
@@ -114,8 +117,17 @@ const Login = () => {
         localStorage.setItem("userRole", userRole);
         localStorage.setItem("userEmail", data.user.email);
         localStorage.setItem("userName", `${data.user.firstName} ${data.user.surname}`);
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("isFirstLogin", data.isFirstLogin ? "true" : "false");
         if (data.token) {
           localStorage.setItem("token", data.token);
+        }
+        
+        // Show appropriate welcome message
+        if (data.isFirstLogin) {
+          toast.success(`Welcome, ${data.user.firstName}!`);
+        } else {
+          toast.success("Logged in successfully!");
         }
         
         if (isHod || userRole === "hod") {
@@ -132,9 +144,11 @@ const Login = () => {
         setLoginError("");
       } else {
         setLoginError(data.message || "Invalid email or password");
+        toast.error(data.message || "Invalid email or password");
       }
     } catch (error) {
       setLoginError("Unable to connect to server. Please try again.");
+      toast.error("Unable to connect to server. Please try again.");
       console.error("Login error:", error);
     } finally {
       setLoading(false);
@@ -215,6 +229,7 @@ const Login = () => {
 
       if (data.success) {
         setRegisterSuccess(true);
+        toast.success("Registered successfully!");
         
         // Auto login after registration
         setTimeout(() => {
@@ -223,6 +238,7 @@ const Login = () => {
           localStorage.setItem("userRole", userRole);
           localStorage.setItem("userEmail", data.user.email);
           localStorage.setItem("userName", `${data.user.firstName} ${data.user.surname}`);
+          localStorage.setItem("isAuthenticated", "true");
           if (data.token) {
             localStorage.setItem("token", data.token);
           }
@@ -240,6 +256,7 @@ const Login = () => {
       }
     } catch (error) {
       setRegisterErrors({ form: "Unable to connect to server. Please try again." });
+      toast.error("Unable to connect to server. Please try again.");
       console.error("Registration error:", error);
     } finally {
       setRegisterLoading(false);
@@ -518,7 +535,9 @@ const Login = () => {
                       surname: "",
                       email: "",
                       password: "",
-                      branch: ""
+                      branch: "",
+                      usn: "",
+                      semester: ""
                     });
                     setRegisterErrors({});
                   }}
@@ -634,12 +653,17 @@ const Login = () => {
           </button>
 
           <p className="mt-4 text-center text-xs text-muted-foreground">
-            {isFaculty ? "Not a faculty member?" : isHod ? "Not an HOD?" : "Not a student?"}{" "}
+            New User?{" "}
             <Link
-              to={alternative.path}
+              to="#"
+              onClick={(e) => {
+                e.preventDefault();
+                setShowRegister(true);
+                setRegisterData(prev => ({ ...prev, email, role: role || "student" }));
+              }}
               className="font-medium text-primary hover:underline link-animate"
             >
-              {alternative.text}
+              Register
             </Link>
           </p>
         </form>

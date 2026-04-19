@@ -12,6 +12,7 @@ import { SummaryCard, SummaryCardSkeleton } from "@/components/SummaryCard";
 import { useRequestsList } from "@/hooks/useRequests";
 import { useDashboardSummary } from "@/hooks/useDashboardSummary";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/components/ui/sonner";
 
 interface LoggedInUser {
   id: string;
@@ -35,6 +36,8 @@ const HodDashboard = () => {
   
   // Get user name from localStorage
   const userName = localStorage.getItem("userName") || "HOD";
+  const isFirstLogin = localStorage.getItem("isFirstLogin") === "true";
+  const welcomeMessage = isFirstLogin ? "Welcome" : "Welcome Back";
 
   // Fetch requests for statistics
   const { data: requests = [] } = useRequestsList();
@@ -93,6 +96,7 @@ const HodDashboard = () => {
     localStorage.removeItem("userEmail");
     localStorage.removeItem("userName");
     localStorage.removeItem("token");
+    toast.success("Logged out successfully!");
     navigate("/");
   };
 
@@ -207,7 +211,7 @@ const HodDashboard = () => {
       <main className="max-w-7xl mx-auto px-3 md:px-4 sm:px-6 lg:px-8 py-4 md:py-8">
         {/* Welcome Card */}
         <div className="mb-6 md:mb-8 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-800 dark:to-blue-900 p-4 md:p-6 text-white shadow-lg fade-in-up">
-          <h2 className="text-xl md:text-3xl font-bold mb-1 md:mb-2">Welcome Back, {userName}!</h2>
+          <h2 className="text-xl md:text-3xl font-bold mb-1 md:mb-2">{welcomeMessage}, {userName}!</h2>
           <p className="text-blue-100">
             Manage student appointment requests and keep track of all meeting schedules.
           </p>

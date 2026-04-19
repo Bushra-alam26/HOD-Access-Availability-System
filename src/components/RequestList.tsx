@@ -64,10 +64,10 @@ export const RequestList = () => {
   const handleAccept = (requestId: string) => {
     acceptReq(requestId, {
       onSuccess: () => {
-        toast.success("Request accepted successfully!");
+        // Request accepted
       },
       onError: () => {
-        toast.error("Failed to accept request. Please try again.");
+        // Failed to accept
       },
     });
   };
@@ -82,12 +82,11 @@ export const RequestList = () => {
     if (selectedRequest) {
       rejectReq(selectedRequest.id, {
         onSuccess: () => {
-          toast.error("Request rejected.");
           setIsRejectDialogOpen(false);
           setSelectedRequest(null);
         },
         onError: () => {
-          toast.error("Failed to reject request. Please try again.");
+          // Failed to reject
         },
       });
     }
@@ -105,14 +104,11 @@ export const RequestList = () => {
         { requestId: selectedRequest.id, newDateTime },
         {
           onSuccess: () => {
-            toast.success(
-              "Request rescheduled successfully!"
-            );
             setIsRescheduleModalOpen(false);
             setSelectedRequest(null);
           },
           onError: () => {
-            toast.error("Failed to reschedule request. Please try again.");
+            // Failed to reschedule
           },
         }
       );

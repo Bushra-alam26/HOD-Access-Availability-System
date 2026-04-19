@@ -5,10 +5,18 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Moon, Sun, Menu, X, Clock, BookOpen, CheckCircle2, Users, Check, X as XIcon } from "lucide-react";
+import { LogOut, Moon, Sun, Menu, X, Clock, BookOpen, CheckCircle2, Users, Check, X as XIcon, Calendar, FileText, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/components/ui/sonner";
+import { useQuery } from "@tanstack/react-query";
+import { fetchRequests } from "@/services/requestService";
+import type { StudentRequest } from "@/types/request";
 
 const FacultyDashboard = () => {
   const navigate = useNavigate();
@@ -16,50 +24,121 @@ const FacultyDashboard = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
+  // Quick Actions states
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [showViewRequestsModal, setShowViewRequestsModal] = useState(false);
+  const [meetingForm, setMeetingForm] = useState({ reason: "", description: "", date: "", time: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   // Get user name from localStorage
   const userName = localStorage.getItem("userName") || "Faculty";
+  const isFirstLogin = localStorage.getItem("isFirstLogin") === "true";
+  const welcomeMessage = isFirstLogin ? "Welcome" : "Welcome Back";
 
   // HOD Status states: available, busy, in-meeting, offline
   const [hodStatus] = useState<"available" | "busy" | "in-meeting" | "offline">("available");
 
-  // Dummy student requests data
-  const studentRequests = [
-    {
-      id: 1,
-      name: "Rahul Sharma",
-      time: "10:30 AM",
-      reason: "Need HOD signature",
-      status: "Pending" as const,
-    },
-    {
-      id: 2,
-      name: "Priya Singh",
-      time: "11:15 AM",
-      reason: "Project approval",
-      status: "Approved" as const,
-    },
-    {
-      id: 3,
-      name: "Aman Verma",
-      time: "12:00 PM",
-      reason: "Leave permission",
-      status: "Rejected" as const,
-    },
-    {
-      id: 4,
-      name: "Sneha Patel",
-      time: "2:30 PM",
-      reason: "Grade review",
-      status: "Pending" as const,
-    },
-    {
-      id: 5,
-      name: "Vikram Kumar",
-      time: "3:45 PM",
-      reason: "Course registration",
-      status: "Approved" as const,
-    },
-  ];
+  // Fetch faculty's own requests
+  const { data: myRequests = [], isLoading: loadingRequests } = useQuery({
+    queryKey: ["facultyRequests"],
+    queryFn: fetchRequests,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Get status styling for requests
+  const getRequestStatusStyle = (status: string) => {
+    const statusStyles: Record<string, { bgColor: string; textColor: string; badgeColor: string }> = {
+      Pending: {
+        bgColor: "bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-700",
+        textColor: "text-yellow-900 dark:text-yellow-200",
+        badgeColor: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+      },
+      Accepted: {
+        bgColor: "bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-700",
+        textColor: "text-green-900 dark:text-green-200",
+        badgeColor: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+      },
+      Rejected: {
+        bgColor: "bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-700",
+        textColor: "text-red-900 dark:text-red-200",
+        badgeColor: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+      },
+    };
+    return statusStyles[status] || statusStyles["Pending"];
+  };
+
+  // Handle schedule meeting submission
+  const handleScheduleMeeting = async () => {
+    if (!meetingForm.reason || !meetingForm.date || !meetingForm.time) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:5001/api/requests", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+        body: JSON.stringify({
+          reason: meetingForm.reason,
+          description: meetingForm.description,
+          requestDate: meetingForm.date,
+          requestTime: meetingForm.time,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("Meeting request submitted successfully!");
+        setShowScheduleModal(false);
+        setMeetingForm({ reason: "", description: "", date: "", time: "" });
+      } else {
+        toast.error(data.message || "Failed to submit meeting request");
+      }
+    } catch (error) {
+      console.error("Schedule meeting error:", error);
+      toast.error("Failed to submit meeting request");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle download report
+  const handleDownloadReport = () => {
+    const reportData = {
+      title: "Faculty Meeting Requests Report",
+      generatedOn: new Date().toLocaleString(),
+      facultyName: userName,
+      totalRequests: myRequests.length,
+      pendingRequests: myRequests.filter((r: StudentRequest) => r.status === "Pending").length,
+      approvedRequests: myRequests.filter((r: StudentRequest) => r.status === "Accepted").length,
+      rejectedRequests: myRequests.filter((r: StudentRequest) => r.status === "Rejected").length,
+      requests: myRequests.map((r: StudentRequest) => ({
+        id: r.id,
+        studentName: r.studentName,
+        reason: r.reason,
+        status: r.status,
+        requestedTime: r.requestedTime,
+        createdAt: r.createdAt,
+      })),
+    };
+
+    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `faculty-report-${new Date().toISOString().split("T")[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Report downloaded successfully!");
+  };
 
   // Initialize dark mode based on localStorage or system preference
   useEffect(() => {
@@ -110,6 +189,7 @@ const FacultyDashboard = () => {
     localStorage.removeItem("userEmail");
     localStorage.removeItem("userName");
     localStorage.removeItem("token");
+    toast.success("Logged out successfully!");
     navigate("/");
   };
 
@@ -146,29 +226,6 @@ const FacultyDashboard = () => {
   };
 
   const statusInfo = getStatusInfo(hodStatus);
-
-  // Get status styling for student requests
-  const getRequestStatusStyle = (status: string) => {
-    const statusStyles: Record<string, { bgColor: string; textColor: string; badgeColor: string }> = {
-      Pending: {
-        bgColor: "bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-700",
-        textColor: "text-yellow-900 dark:text-yellow-200",
-        badgeColor: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-      },
-      Approved: {
-        bgColor: "bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-700",
-        textColor: "text-green-900 dark:text-green-200",
-        badgeColor: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-      },
-      Rejected: {
-        bgColor: "bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-700",
-        textColor: "text-red-900 dark:text-red-200",
-        badgeColor: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-      },
-    };
-
-    return statusStyles[status] || statusStyles["Pending"];
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 page-enter">
@@ -233,7 +290,7 @@ const FacultyDashboard = () => {
       <main className="max-w-7xl mx-auto px-3 md:px-4 sm:px-6 lg:px-8 py-4 md:py-8">
         {/* Welcome Card */}
         <div className="mb-6 md:mb-8 rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-800 dark:to-purple-900 p-4 md:p-6 text-white shadow-lg fade-in-up">
-          <h2 className="text-xl md:text-3xl font-bold mb-1 md:mb-2">Welcome Back, {userName}!</h2>
+          <h2 className="text-xl md:text-3xl font-bold mb-1 md:mb-2">{welcomeMessage}, {userName}!</h2>
           <p className="text-purple-100">
             Check HOD availability, manage your meetings, and track appointment requests.
           </p>
@@ -355,103 +412,144 @@ const FacultyDashboard = () => {
         <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-md border border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800">
+            <Button 
+              className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
+              onClick={() => setShowScheduleModal(true)}
+            >
+              <Calendar className="w-4 h-4 mr-2" />
               Schedule Meeting with HOD
             </Button>
-            <Button variant="outline" className="w-full">
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => setShowViewRequestsModal(true)}
+            >
+              <FileText className="w-4 h-4 mr-2" />
               View My Requests
             </Button>
-            <Button variant="outline" className="w-full">
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={handleDownloadReport}
+            >
+              <Download className="w-4 h-4 mr-2" />
               Download Report
             </Button>
           </div>
         </div>
 
-        {/* Student Requests Section */}
-        <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-md border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Student Requests</h3>
-            <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-              {studentRequests.length} Total
-            </Badge>
-          </div>
+        {/* Schedule Meeting Modal */}
+        <Dialog open={showScheduleModal} onOpenChange={setShowScheduleModal}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Schedule Meeting with HOD</DialogTitle>
+              <DialogDescription>
+                Fill in the details to request a meeting with the Head of Department.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="reason">Reason *</Label>
+                <Input
+                  id="reason"
+                  placeholder="e.g., Project discussion, Leave approval"
+                  value={meetingForm.reason}
+                  onChange={(e) => setMeetingForm({ ...meetingForm, reason: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Add any additional details..."
+                  value={meetingForm.description}
+                  onChange={(e) => setMeetingForm({ ...meetingForm, description: e.target.value })}
+                  rows={3}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="date">Date *</Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    value={meetingForm.date}
+                    onChange={(e) => setMeetingForm({ ...meetingForm, date: e.target.value })}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="time">Time *</Label>
+                  <Input
+                    id="time"
+                    type="time"
+                    value={meetingForm.time}
+                    onChange={(e) => setMeetingForm({ ...meetingForm, time: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowScheduleModal(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleScheduleMeeting}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Submitting..." : "Submit Request"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-          <div className="space-y-4">
-            {studentRequests.map((request) => {
-              const statusStyle = getRequestStatusStyle(request.status);
-
-              return (
-                <div
-                  key={request.id}
-                  className={`rounded-lg border p-4 transition-all duration-200 hover:shadow-md ${statusStyle.bgColor} ${statusStyle.textColor}`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h4 className="font-semibold text-lg">{request.name}</h4>
+        {/* View My Requests Modal */}
+        <Dialog open={showViewRequestsModal} onOpenChange={setShowViewRequestsModal}>
+          <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>My Meeting Requests</DialogTitle>
+              <DialogDescription>
+                View all your meeting requests and their status.
+              </DialogDescription>
+            </DialogHeader>
+            {loadingRequests ? (
+              <div className="py-8 text-center text-gray-500">Loading requests...</div>
+            ) : myRequests.length === 0 ? (
+              <div className="py-8 text-center text-gray-500">No meeting requests found.</div>
+            ) : (
+              <div className="space-y-3">
+                {myRequests.map((request: StudentRequest) => {
+                  const statusStyle = getRequestStatusStyle(request.status);
+                  return (
+                    <div
+                      key={request.id}
+                      className={`rounded-lg border p-4 ${statusStyle.bgColor} ${statusStyle.textColor}`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-semibold">{request.reason}</h4>
                         <Badge className={`text-xs font-medium ${statusStyle.badgeColor}`}>
                           {request.status}
                         </Badge>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm opacity-80">
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4" />
-                          <span>{request.time}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <BookOpen className="h-4 w-4" />
-                          <span>{request.reason}</span>
-                        </div>
+                      <div className="text-sm opacity-80 space-y-1">
+                        <p>Requested: {new Date(request.requestedTime).toLocaleString()}</p>
+                        {request.status === "Rejected" && request.rejectionReason && (
+                          <p className="text-red-600">Reason: {request.rejectionReason}</p>
+                        )}
                       </div>
                     </div>
+                  );
+                })}
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowViewRequestsModal(false)}>
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-2 ml-4">
-                      {request.status === "Pending" && (
-                        <>
-                          <Button
-                            size="sm"
-                            className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800"
-                          >
-                            <Check className="h-4 w-4 mr-1" />
-                            Approve
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                          >
-                            <XIcon className="h-4 w-4 mr-1" />
-                            Reject
-                          </Button>
-                        </>
-                      )}
-                      {request.status === "Approved" && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-green-300 text-green-700 hover:bg-green-50 dark:border-green-600 dark:text-green-300 dark:hover:bg-green-950"
-                        >
-                          <CheckCircle2 className="h-4 w-4 mr-1" />
-                          Approved
-                        </Button>
-                      )}
-                      {request.status === "Rejected" && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-950"
-                        >
-                          <XIcon className="h-4 w-4 mr-1" />
-                          Rejected
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        // ...existing code...
       </main>
 
       {/* Footer */}

@@ -54,6 +54,13 @@ export const RequestCard = ({
   const config = statusConfig[request.status];
   const isPending = request.status === "Pending";
 
+  // Safe date formatting to prevent invalid time value error
+  let formattedDate = "Invalid date";
+  if (request.requestedTime) {
+    const date = new Date(request.requestedTime);
+    formattedDate = isNaN(date.getTime()) ? "Invalid date" : format(date, "PPP 'at' p");
+  }
+
   return (
     <Card className="hover:shadow-lg transition-shadow duration-300 overflow-hidden">
       <CardHeader className="pb-3">
@@ -70,7 +77,7 @@ export const RequestCard = ({
             {/* Request Time */}
             <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
               <Clock className="w-4 h-4 flex-shrink-0" />
-              {format(new Date(request.requestedTime), "PPP 'at' p")}
+              {formattedDate}
             </div>
           </div>
 

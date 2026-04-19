@@ -44,12 +44,16 @@ exports.login = async (req, res) => {
       user.lastLogin = new Date();
       await user.save();
 
+      // Check if this is first login (new user)
+      const isFirstLogin = !user.lastLogin || user.lastLogin.getTime() === user.createdAt.getTime();
+
       // Generate JWT token
       const token = generateToken(user);
 
       return res.status(200).json({
         success: true,
         message: 'Login successful',
+        isFirstLogin: isFirstLogin,
         token,
         user: {
           id: user._id,

@@ -8,36 +8,23 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/sonner";
 import { FormField } from "@/components/FormField";
 import { useAuth } from "@/hooks/useAuth";
+import { useRequestsList, useCreateRequest } from "@/hooks/useRequests";
 
-type RequestStatus = "Pending" | "Approved" | "Rejected";
+type RequestStatus = "Pending" | "Approved" | "Accepted" | "Rejected";
 
 const requestStatusLabel: Record<RequestStatus, string> = {
   Pending: "🟡 Pending",
   Approved: "🟢 Approved",
+  Accepted: "🟢 Approved",
   Rejected: "🔴 Rejected",
 };
-
-interface StudentRequest {
-  id: string;
-  title: string;
-  date: string;
-  person: string;
-  status: RequestStatus;
-}
-
-const dummyRequests: StudentRequest[] = [
-  { id: "1", title: "Need HOD Signature", date: "16 Apr 2026", person: "Dr. Sharma", status: "Pending" },
-  { id: "2", title: "Project Approval", date: "15 Apr 2026", person: "Dr. Verma", status: "Approved" },
-  { id: "3", title: "Leave Permission", date: "14 Apr 2026", person: "Dr. Rao", status: "Rejected" },
-  { id: "4", title: "Research Grant Request", date: "13 Apr 2026", person: "Dr. Sharma", status: "Approved" },
-  { id: "5", title: "Exam Extension", date: "12 Apr 2026", person: "Dr. Verma", status: "Pending" },
-];
 
 const getStatusIcon = (status: RequestStatus) => {
   switch (status) {
     case "Pending":
       return <Clock className="h-4 w-4" />;
     case "Approved":
+    case "Accepted":
       return <Check className="h-4 w-4" />;
     case "Rejected":
       return <X className="h-4 w-4" />;
@@ -47,8 +34,8 @@ const getStatusIcon = (status: RequestStatus) => {
 const Dashboard = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
-  const [hodAvailable] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const [hodAvailable, setHodAvailable] = useState(true);
   const [topic, setTopic] = useState("");
   const [notes, setNotes] = useState("");
   const [topicError, setTopicError] = useState("");
@@ -57,13 +44,24 @@ const Dashboard = () => {
   const [isRequesting, setIsRequesting] = useState(false);
   const [requestFeedback, setRequestFeedback] = useState("");
   const [activeFilter, setActiveFilter] = useState<RequestStatus | "All">("All");
+  const [requestDate, setRequestDate] = useState("");
+  const [requestTime, setRequestTime] = useState("");
+  
+  // Fetch real requests from backend
+  const { data: requests = [], isLoading: requestsLoading } = useRequestsList();
+  const { mutate: createReq, isPending: isCreating } = useCreateRequest();
   
   // Get user name from localStorage
   const userName = localStorage.getItem("userName") || "Student";
+  const isFirstLogin = localStorage.getItem("isFirstLogin") === "true";
+  const welcomeMessage = isFirstLogin ? "Welcome" : "Welcome Back";
 
+  // Filter requests based on status
   const filteredRequests = activeFilter === "All"
-    ? dummyRequests
-    : dummyRequests.filter(request => request.status === activeFilter);
+    ? requests
+    : activeFilter === "Approved"
+    ? requests.filter(request => request.status === "Approved" || request.status === "Accepted")
+    : requests.filter(request => request.status === activeFilter);
 
   // Handle logout
   const handleLogout = async () => {
@@ -85,6 +83,7 @@ const Dashboard = () => {
     localStorage.removeItem("userEmail");
     localStorage.removeItem("userName");
     localStorage.removeItem("token");
+    toast.success("Logged out successfully!");
     navigate("/");
   };
 
@@ -114,28 +113,9 @@ const Dashboard = () => {
     }
   }, [darkMode]);
 
-  useEffect(() => {
-    if (!isRequesting) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => {
-      const nextStatus = Math.random() > 0.5 ? "Approved" : "Rejected";
-      setRequestStatus(nextStatus);
-      setIsRequesting(false);
-      if (nextStatus === "Approved") {
-        toast.success("Request approved by the HOD.");
-      } else {
-        toast.error("Request rejected. Try again later.");
-      }
-    }, 3000);
-
-    return () => window.clearTimeout(timer);
-  }, [isRequesting]);
-
   const statusMessage =
     requestStatus === "Pending"
-      ? "Your meeting request is pending review. Please wait a few seconds."
+      ? "Your meeting request is pending review. Please wait for HOD approval."
       : requestStatus === "Approved"
       ? "Great news — your meeting request has been approved."
       : "Your meeting request was rejected. You can try again later.";
@@ -167,7 +147,7 @@ const Dashboard = () => {
   };
 
   const validateForm = () => {
-    const errors = { topic: "", notes: "" };
+    const errors = { topic: "", notes: "", date: "", time: "" };
     let isValid = true;
 
     if (!topic.trim()) {
@@ -177,6 +157,16 @@ const Dashboard = () => {
 
     if (!notes.trim()) {
       errors.notes = "Notes are required";
+      isValid = false;
+    }
+
+    if (!requestDate) {
+      errors.date = "Date is required";
+      isValid = false;
+    }
+
+    if (!requestTime) {
+      errors.time = "Time is required";
       isValid = false;
     }
 
@@ -191,13 +181,31 @@ const Dashboard = () => {
       return;
     }
 
-    setRequestFeedback("Request submitted successfully");
-    toast.success("Request submitted successfully");
-    setRequestStatus("Pending");
-    setIsRequesting(true);
+    // Create request using backend API
+    createReq(
+      {
+        reason: topic,
+        description: notes,
+        requestDate,
+        requestTime,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Request submitted successfully!");
+          setTopic("");
+          setNotes("");
+          setRequestDate("");
+          setRequestTime("");
+          setRequestStatus("Pending");
+        },
+        onError: (error: any) => {
+          toast.error(error.message || "Failed to submit request. Please try again.");
+        },
+      }
+    );
   };
 
-  const isFormValid = topic.trim() && notes.trim();
+  const isFormValid = topic.trim() && notes.trim() && requestDate && requestTime;
 
   return (
     <div className="relative min-h-screen overflow-hidden animated-dashboard-background px-3 py-6 md:px-4 md:py-10 text-slate-900 dark:text-slate-100 page-enter">
@@ -220,7 +228,7 @@ const Dashboard = () => {
         <div className="w-full rounded-2xl md:rounded-[2rem] border border-slate-200/50 bg-white/95 p-4 sm:p-6 md:p-8 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl">
           <div className="mb-6 md:mb-10 space-y-3 fade-in-up">
             <p className="text-xs md:text-sm uppercase tracking-[0.2em] md:tracking-[0.34em] text-slate-500">Student Dashboard</p>
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight text-slate-950 dark:text-white">Welcome Back, {userName}!</h1>
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight text-slate-950 dark:text-white">{welcomeMessage}, {userName}!</h1>
             <p className="max-w-2xl text-sm leading-6 md:leading-7 text-slate-600 dark:text-slate-400">
               Check HOD availability, submit your meeting request, and send access details with topic and notes.
             </p>
@@ -333,6 +341,31 @@ const Dashboard = () => {
                     darkMode
                   />
 
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                        Date <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="date"
+                        value={requestDate}
+                        onChange={(e) => setRequestDate(e.target.value)}
+                        className="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2.5 text-sm text-white outline-none transition-all focus:border-sky-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                        Time <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="time"
+                        value={requestTime}
+                        onChange={(e) => setRequestTime(e.target.value)}
+                        className="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2.5 text-sm text-white outline-none transition-all focus:border-sky-500"
+                      />
+                    </div>
+                  </div>
+
                   {requestFeedback ? (
                     <div className="rounded-3xl bg-emerald-100 px-4 py-3 text-sm font-medium text-emerald-900">
                       {requestFeedback}
@@ -342,12 +375,12 @@ const Dashboard = () => {
                   <Button
                     className="w-full rounded-full bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500 text-white shadow-[0_18px_30px_rgba(59,130,246,0.24)] transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_40px_rgba(37,99,235,0.28)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-[0_18px_30px_rgba(59,130,246,0.24)]"
                     onClick={handleSubmit}
-                    disabled={isRequesting || !isFormValid}
+                    disabled={isCreating || !isFormValid}
                   >
-                    {isRequesting ? (
+                    {isCreating ? (
                       <span className="inline-flex items-center gap-2">
                         <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                        Requesting...
+                        Submitting...
                       </span>
                     ) : (
                       "Submit Request"
@@ -376,7 +409,7 @@ const Dashboard = () => {
                 className="rounded-full btn-animate text-xs px-2.5 md:text-sm md:px-4"
               >
                 <Filter className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
-                <span className="hidden xs:inline">All</span> ({dummyRequests.length})
+                <span className="hidden xs:inline">All</span> ({requests.length})
               </Button>
               <Button
                 variant={activeFilter === "Pending" ? "default" : "outline"}
@@ -385,7 +418,7 @@ const Dashboard = () => {
                 className="rounded-full btn-animate text-xs px-2.5 md:text-sm md:px-4"
               >
                 <Clock className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
-                <span className="hidden xs:inline">Pending</span> ({dummyRequests.filter(r => r.status === "Pending").length})
+                <span className="hidden xs:inline">Pending</span> ({requests.filter(r => r.status === "Pending").length})
               </Button>
               <Button
                 variant={activeFilter === "Approved" ? "default" : "outline"}
@@ -394,7 +427,7 @@ const Dashboard = () => {
                 className="rounded-full btn-animate text-xs px-2.5 md:text-sm md:px-4"
               >
                 <Check className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
-                <span className="hidden xs:inline">Approved</span> ({dummyRequests.filter(r => r.status === "Approved").length})
+                <span className="hidden xs:inline">Approved</span> ({requests.filter(r => r.status === "Approved" || r.status === "Accepted").length})
               </Button>
               <Button
                 variant={activeFilter === "Rejected" ? "default" : "outline"}
@@ -403,13 +436,20 @@ const Dashboard = () => {
                 className="rounded-full btn-animate text-xs px-2.5 md:text-sm md:px-4"
               >
                 <X className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
-                <span className="hidden xs:inline">Rejected</span> ({dummyRequests.filter(r => r.status === "Rejected").length})
+                <span className="hidden xs:inline">Rejected</span> ({requests.filter(r => r.status === "Rejected").length})
               </Button>
             </div>
 
             {/* Requests List */}
             <div className="space-y-3 md:space-y-4">
-              {filteredRequests.length === 0 ? (
+              {requestsLoading ? (
+                <div className="rounded-xl md:rounded-[1.5rem] border border-slate-200/50 bg-slate-50/50 p-6 md:p-8 text-center dark:border-slate-800/50 dark:bg-slate-900/50">
+                  <div className="inline-flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+                    <Clock className="h-6 w-6 md:h-8 md:w-8 text-slate-400 animate-spin" />
+                  </div>
+                  <h3 className="mt-3 md:mt-4 text-base md:text-lg font-medium text-slate-900 dark:text-slate-100">Loading requests...</h3>
+                </div>
+              ) : filteredRequests.length === 0 ? (
                 <div className="rounded-xl md:rounded-[1.5rem] border border-slate-200/50 bg-slate-50/50 p-6 md:p-8 text-center dark:border-slate-800/50 dark:bg-slate-900/50">
                   <div className="inline-flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
                     <Filter className="h-6 w-6 md:h-8 md:w-8 text-slate-400" />
@@ -429,18 +469,18 @@ const Dashboard = () => {
                       <div className="flex-1 space-y-2">
                         <div className="flex items-start justify-between gap-4">
                           <div>
-                            <h3 className="font-semibold text-slate-900 dark:text-slate-100">{request.title}</h3>
+                            <h3 className="font-semibold text-slate-900 dark:text-slate-100">{request.reason}</h3>
                             <p className="text-sm text-slate-600 dark:text-slate-400">
-                              Submitted to: {request.person}
+                              Submitted to: HOD
                             </p>
                           </div>
                           <div className="flex items-center gap-2">
-                            {getStatusIcon(request.status)}
+                            {getStatusIcon(request.status as RequestStatus)}
                             <Badge
                               variant={
                                 request.status === "Pending"
                                   ? "pending"
-                                  : request.status === "Approved"
+                                  : request.status === "Approved" || request.status === "Accepted"
                                   ? "approved"
                                   : "rejected"
                               }
@@ -451,7 +491,7 @@ const Dashboard = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                          <span>Submitted on: {request.date}</span>
+                          <span>Submitted on: {request.createdAt ? new Date(request.createdAt).toLocaleDateString() : 'N/A'}</span>
                         </div>
                       </div>
                     </div>

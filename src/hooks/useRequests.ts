@@ -9,6 +9,7 @@ import {
   acceptRequest,
   rejectRequest,
   rescheduleRequest,
+  createRequest,
 } from "@/services/requestService";
 import type { StudentRequest, ReschedulePayload } from "@/types/request";
 
@@ -20,6 +21,24 @@ export const useRequestsList = () => {
     queryKey: ["requests"],
     queryFn: fetchRequests,
     staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+/**
+ * Create a new request mutation
+ */
+export const useCreateRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createRequest,
+    onSuccess: (newRequest) => {
+      // Add the new request to the cache
+      queryClient.setQueryData(["requests"], (oldData: StudentRequest[] | undefined) => {
+        if (!oldData) return [newRequest];
+        return [newRequest, ...oldData];
+      });
+    },
   });
 };
 

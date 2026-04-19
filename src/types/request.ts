@@ -16,6 +16,9 @@ export interface StudentRequest {
   createdAt: string;
   updatedAt?: string;
   rescheduledTo?: string; // New scheduled time if rescheduled
+  rejectionReason?: string;
+  approvedByName?: string;
+  rejectedByName?: string;
 }
 
 export interface ReschedulePayload {
