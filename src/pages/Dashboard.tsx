@@ -276,7 +276,7 @@ const Dashboard = () => {
 
       <div className="relative mx-auto flex min-h-[calc(100vh-80px)] max-w-6xl items-center justify-center">
         <div className="w-full rounded-[2rem] border border-slate-200/50 bg-white/95 p-8 shadow-[0_30px_80px_rgba(148,163,184,0.2)] backdrop-blur-xl sm:p-12">
-          <div className="mb-10 space-y-3">
+          <div className="mb-10 space-y-3 fade-in-up">
             <p className="text-sm uppercase tracking-[0.34em] text-slate-500">Student Dashboard</p>
             <h1 className="text-4xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-5xl">Welcome Back, {userName}!</h1>
             <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-400 sm:text-base">
